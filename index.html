@@ -423,7 +423,7 @@
 <body>
     <div class="container">
         <header>
-            <h1>EBIOS RM • Atelier 4</h1>
+            <h1>EBIOS RM</h1>
             <button class="theme-toggle" onclick="toggleTheme()">🌓 Theme</button>
         </header>
 
@@ -543,7 +543,7 @@
                     return { score: this.getFinalScore(n.prob, n.diff, n.socle), p: n.prob, d: n.diff };
                 }
 
-                // LOGIQUE EBIOS RM OFFICIELLE (Atelier 4) - VERSION CORRIGÉE
+                // LOGIQUE EBIOS RM OFFICIELLE - VERSION CORRIGÉE
                 // Le score global est le MINIMUM des scores de chaque étape
                 // Le socle s'applique PAR ÉTAPE, pas globalement
 
@@ -781,7 +781,7 @@
                 const { jsPDF } = window.jspdf;
                 const doc = new jsPDF();
                 const res = this.calculate();
-                doc.text(`EBIOS RM Atelier 4 - V${res.score}`, 20, 20);
+                doc.text(`EBIOS RM - V${res.score}`, 20, 20);
                 doc.save('ebios_atelier4.pdf');
             }
         };
