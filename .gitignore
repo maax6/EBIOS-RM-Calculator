@@ -4,3 +4,4 @@ js/
 styles/
 *.log
 .DS_Store
+.env
