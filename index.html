@@ -1,0 +1,1066 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EBIOS RM Likelihood Calculator v2</title>
+    <style>
+        :root {
+            --bg-color: #f4f7f9;
+            --sidebar-bg: #1b3a57;
+            --card-bg: #ffffff;
+            --accent-color: #005a9c;
+            --accent-hover: #003f6d;
+            --text-main: #333333;
+            --text-light: #666666;
+            --border-color: #d1d9e0;
+            --active-bg: #005a9c;
+            --active-text: #ffffff;
+            --shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+        }
+
+        [data-theme="dark"] {
+            --bg-color: #0d1117;
+            --sidebar-bg: #161b22;
+            --card-bg: #161b22;
+            --accent-color: #58a6ff;
+            --accent-hover: #1f6feb;
+            --text-main: #c9d1d9;
+            --text-light: #8b949e;
+            --border-color: #30363d;
+            --active-bg: #1f6feb;
+            --active-text: #ffffff;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 2rem auto;
+            padding: 0 1rem;
+        }
+
+        header {
+            background: var(--sidebar-bg);
+            color: white;
+            padding: 1rem 2rem;
+            border-radius: 12px 12px 0 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo-area {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-weight: bold;
+            font-size: 1.2rem;
+        }
+
+        .mode-selector {
+            display: flex;
+            gap: 5px;
+            background: rgba(0, 0, 0, 0.2);
+            padding: 4px;
+            border-radius: 8px;
+        }
+
+        .btn-mode {
+            background: transparent;
+            border: none;
+            color: rgba(255, 255, 255, 0.7);
+            padding: 6px 15px;
+            cursor: pointer;
+            border-radius: 6px;
+            font-size: 0.85rem;
+            transition: 0.2s;
+        }
+
+        .btn-mode.active {
+            background: white;
+            color: var(--sidebar-bg);
+            font-weight: bold;
+        }
+
+        /* Stepper */
+        .stepper {
+            background: var(--card-bg);
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            padding: 0 1rem;
+        }
+
+        .step-item {
+            flex: 1;
+            padding: 1rem;
+            text-align: center;
+            cursor: pointer;
+            font-size: 0.9rem;
+            color: var(--text-light);
+            border-bottom: 3px solid transparent;
+            transition: 0.2s;
+        }
+
+        .step-item.active {
+            color: var(--accent-color);
+            border-bottom-color: var(--accent-color);
+            font-weight: bold;
+            background: rgba(0, 90, 156, 0.05);
+        }
+
+        /* Calculator Content */
+        .calculator-body {
+            background: var(--card-bg);
+            padding: 2rem;
+            border-radius: 0 0 12px 12px;
+            box-shadow: var(--shadow);
+            border: 1px solid var(--border-color);
+            border-top: none;
+        }
+
+        .metric-group {
+            margin-bottom: 2.5rem;
+        }
+
+        .group-header {
+            background: #eef2f5;
+            padding: 8px 15px;
+            margin-bottom: 1.5rem;
+            font-size: 0.9rem;
+            font-weight: bold;
+            color: #444;
+            border-radius: 4px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            border-left: 4px solid var(--accent-color);
+        }
+
+        [data-theme="dark"] .group-header {
+            background: #21262d;
+            color: #c9d1d9;
+        }
+
+        .metric-row {
+            display: flex;
+            align-items: center;
+            margin-bottom: 1rem;
+            gap: 20px;
+        }
+
+        .metric-label {
+            width: 250px;
+            text-align: right;
+            font-size: 0.9rem;
+            font-weight: 500;
+        }
+
+        .metric-buttons {
+            display: flex;
+            gap: 2px;
+            background: var(--border-color);
+            padding: 2px;
+            border-radius: 6px;
+        }
+
+        .btn-metric {
+            background: white;
+            border: 1px solid var(--border-color);
+            padding: 8px 16px;
+            cursor: pointer;
+            font-size: 0.85rem;
+            min-width: 80px;
+            transition: 0.1s;
+        }
+
+        [data-theme="dark"] .btn-metric {
+            background: #0d1117;
+            border-color: #30363d;
+            color: #c9d1d9;
+        }
+
+        .btn-metric:first-child {
+            border-radius: 4px 0 0 4px;
+        }
+
+        .btn-metric:last-child {
+            border-radius: 0 4px 4px 0;
+        }
+
+        .btn-metric.active {
+            background: var(--active-bg);
+            color: white;
+            border-color: var(--active-bg);
+            z-index: 1;
+        }
+
+        /* Result Area */
+        .dashboard-flex {
+            display: flex;
+            gap: 20px;
+            margin-top: 2rem;
+            align-items: stretch;
+        }
+
+        .result-panel-v2 {
+            flex: 1;
+            background: #1b3a57;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem;
+            color: white;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .matrix-container {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 1.5rem;
+            flex: 1.5;
+        }
+
+        .matrix-title {
+            font-size: 0.8rem;
+            font-weight: bold;
+            text-transform: uppercase;
+            margin-bottom: 1rem;
+            color: var(--text-light);
+        }
+
+        .matrix-grid {
+            display: grid;
+            grid-template-columns: 40px repeat(5, 1fr);
+            grid-template-rows: 25px repeat(5, 1fr);
+            gap: 4px;
+            font-size: 0.65rem;
+            text-align: center;
+        }
+
+        .matrix-cell {
+            aspect-ratio: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 3px;
+            font-weight: bold;
+            color: rgba(255, 255, 255, 0.6);
+            transition: 0.3s;
+        }
+
+        .matrix-cell.active-cell {
+            box-shadow: 0 0 15px rgba(255, 255, 255, 0.5), inset 0 0 0 3px white;
+            color: white;
+            transform: scale(1.05);
+            z-index: 2;
+        }
+
+        .v1-cell {
+            background-color: #2ea043;
+        }
+
+        .v2-cell {
+            background-color: #d29922;
+        }
+
+        .v3-cell {
+            background-color: #db6d28;
+        }
+
+        .v4-cell {
+            background-color: #f85149;
+        }
+
+        .matrix-header-x {
+            grid-column: 2 / span 5;
+            font-weight: bold;
+            font-size: 0.6rem;
+            color: var(--text-light);
+        }
+
+        .matrix-header-y {
+            grid-row: 2 / span 5;
+            writing-mode: vertical-lr;
+            transform: rotate(180deg);
+            font-weight: bold;
+            font-size: 0.6rem;
+            color: var(--text-light);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* Semantic Colors for Buttons */
+        .semantic-prob .btn-metric.active {
+            color: white;
+            border-color: transparent !important;
+        }
+
+        .semantic-prob .btn-metric.active[id*="0"] {
+            background-color: #2ea043 !important;
+        }
+
+        .semantic-prob .btn-metric.active[id*="1"] {
+            background-color: #d29922 !important;
+        }
+
+        .semantic-prob .btn-metric.active[id*="2"] {
+            background-color: #db6d28 !important;
+        }
+
+        .semantic-prob .btn-metric.active[id*="3"] {
+            background-color: #f85149 !important;
+        }
+
+        .semantic-prob .btn-metric.active[id*="4"] {
+            background-color: #ff0000 !important;
+        }
+
+        .semantic-diff .btn-metric.active {
+            color: white;
+            border-color: transparent !important;
+        }
+
+        .semantic-diff .btn-metric.active[id*="4"] {
+            background-color: #2ea043 !important;
+        }
+
+        .semantic-diff .btn-metric.active[id*="3"] {
+            background-color: #d29922 !important;
+        }
+
+        .semantic-diff .btn-metric.active[id*="2"] {
+            background-color: #db6d28 !important;
+        }
+
+        .semantic-diff .btn-metric.active[id*="1"] {
+            background-color: #f85149 !important;
+        }
+
+        .semantic-diff .btn-metric.active[id*="0"] {
+            background-color: #ff0000 !important;
+        }
+
+        .score-container {
+            text-align: center;
+        }
+
+        .result-score {
+            font-size: 5rem;
+            font-weight: 900;
+            line-height: 1;
+            margin: 10px 0;
+            transition: color 0.5s;
+            color: #ffce00;
+        }
+
+        /* Dark mode toggle */
+        .theme-toggle {
+            cursor: pointer;
+            opacity: 0.7;
+            font-size: 0.8rem;
+        }
+    </style>
+</head>
+
+<body data-theme="dark">
+    <div class="container">
+        <header>
+            <div class="logo-area">
+                <span>EBIOS RM Calculator</span>
+                <span class="theme-toggle" onclick="toggleTheme()">🌓 Dark Mode</span>
+            </div>
+            <div class="mode-selector">
+                <button class="btn-mode active" id="mode-express" onclick="app.setMode('express')">Express</button>
+                <button class="btn-mode" id="mode-standard" onclick="app.setMode('standard')">Standard</button>
+                <button class="btn-mode" id="mode-advanced" onclick="app.setMode('advanced')">Advanced</button>
+            </div>
+        </header>
+
+        <div id="stepper-ui" class="stepper" style="display: none;">
+            <div class="step-item active" onclick="app.setActiveStep(0)" id="step-0">1. Connaître</div>
+            <div class="step-item" onclick="app.setActiveStep(1)" id="step-1">2. Rentrer</div>
+            <div class="step-item" onclick="app.setActiveStep(2)" id="step-2">3. Trouver</div>
+            <div class="step-item" onclick="app.setActiveStep(3)" id="step-3">4. Exploiter</div>
+        </div>
+
+        <div class="calculator-body">
+            <!-- État de l'étape active -->
+            <div id="active-step-title" style="margin-bottom: 2rem; display: none;">
+                <h2 id="step-name">Étape : Connaître</h2>
+                <hr style="margin-top: 10px; opacity: 0.1;">
+            </div>
+
+            <!-- Exploitability Metrics -->
+            <div class="metric-group">
+                <div class="group-header">Exploitability Metrics (Probabilité de succès)</div>
+                <div class="metric-row">
+                    <div class="metric-label">Probabilité de succès (P) :</div>
+                    <div class="metric-buttons semantic-prob" id="btns-prob">
+                        <!-- Généré par JS -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- Technical Metrics (Advanced only) -->
+            <div class="metric-group" id="group-technical" style="display: none;">
+                <div class="group-header">Technical Metrics (Difficulté Technique)</div>
+                <p id="diff-desc"
+                    style="font-size: 0.8rem; color: var(--text-light); margin: -10px 0 15px 270px; max-width: 600px;">
+                </p>
+                <div class="metric-row">
+                    <div class="metric-label">Difficulté Technique (D) :</div>
+                    <div class="metric-buttons semantic-diff" id="btns-diff">
+                        <!-- Généré par JS -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- Security Posture -->
+            <div class="metric-group">
+                <div class="group-header">Security Posture (Mesures du Socle)</div>
+                <div class="metric-row">
+                    <div class="metric-label">Efficacité du Socle :</div>
+                    <div class="metric-buttons" id="btns-socle">
+                        <button class="btn-metric" id="socle-0" onclick="app.updateMetric('socle', 0)">Nulle
+                            (X)</button>
+                        <button class="btn-metric" id="socle-1" onclick="app.updateMetric('socle', 1)">Minorée
+                            (L)</button>
+                        <button class="btn-metric" id="socle-2" onclick="app.updateMetric('socle', 2)">Majeure
+                            (H)</button>
+                        <button class="btn-metric" id="socle-3" onclick="app.updateMetric('socle', 3)">Maximale
+                            (M)</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="dashboard-flex">
+                <div class="result-panel-v2">
+                    <div class="score-container">
+                        <span class="score-desc">Vraisemblance Globale</span>
+                        <div class="result-score" id="global-score">V1</div>
+                        <span id="score-label-text" style="font-size: 0.8rem; opacity: 0.7;">Calculé selon la méthode
+                            EBIOS RM - Atelier 4</span>
+                    </div>
+                </div>
+
+                <div class="matrix-container">
+                    <div class="matrix-title">Matrice de Cotation Officielle</div>
+                    <div id="ebios-matrix" class="matrix-grid">
+                        <!-- Généré par JS -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- Reporting Visualization -->
+            <div class="metric-group" id="reporting-viz" style="margin-top: 3rem;">
+                <div class="group-header">Compte-rendu de la Vraisemblance (Evolution)</div>
+                <div id="likelihood-chart" class="chart-container">
+                    <!-- Généré par JS -->
+                </div>
+            </div>
+
+            <!-- Visualization Board (Cards) -->
+            <div id="summary-visualization" class="summary-grid" style="margin-top: 2rem;">
+                <!-- Généré par JS -->
+            </div>
+        </div>
+    </div>
+
+    <style>
+        .dashboard-flex {
+            display: flex;
+            gap: 20px;
+            margin-top: 2rem;
+            align-items: stretch;
+        }
+
+        .result-panel-v2 {
+            flex: 1;
+            background: #1b3a57;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem;
+            color: white;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .matrix-container {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 1.5rem;
+            flex: 1.5;
+        }
+
+        .matrix-title {
+            font-size: 0.8rem;
+            font-weight: bold;
+            text-transform: uppercase;
+            margin-bottom: 1rem;
+            color: var(--text-light);
+        }
+
+        .matrix-grid {
+            display: grid;
+            grid-template-columns: 40px repeat(5, 1fr);
+            grid-template-rows: 25px repeat(5, 1fr);
+            gap: 4px;
+            font-size: 0.65rem;
+            text-align: center;
+        }
+
+        .matrix-cell {
+            aspect-ratio: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 3px;
+            font-weight: bold;
+            color: rgba(255, 255, 255, 0.6);
+            transition: 0.3s;
+        }
+
+        .matrix-cell.active-cell {
+            box-shadow: 0 0 15px rgba(255, 255, 255, 0.5), inset 0 0 0 3px white;
+            color: white;
+            transform: scale(1.05);
+            z-index: 2;
+        }
+
+        .v1-cell {
+            background-color: #2ea043;
+            color: white !important;
+        }
+
+        /* V0 */
+        .v2-cell {
+            background-color: #a8cf45;
+            color: #1b3a57 !important;
+        }
+
+        /* V1 */
+        .v3-cell {
+            background-color: #ffce00;
+            color: #1b3a57 !important;
+        }
+
+        /* V2 */
+        .v4-cell {
+            background-color: #db6d28;
+            color: white !important;
+        }
+
+        /* V3 */
+        .v5-cell {
+            background-color: #f85149;
+            color: white !important;
+        }
+
+        /* V4 */
+
+        .matrix-header-x {
+            grid-column: 2 / span 5;
+            font-weight: bold;
+            font-size: 0.6rem;
+            color: var(--text-light);
+        }
+
+        .matrix-header-y {
+            grid-row: 2 / span 5;
+            writing-mode: vertical-lr;
+            transform: rotate(180deg);
+            font-weight: bold;
+            font-size: 0.6rem;
+            color: var(--text-light);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* Semantic Colors for Buttons */
+        .semantic-prob .btn-metric.active {
+            color: white !important;
+            border-color: transparent !important;
+        }
+
+        .semantic-prob .btn-metric.active[id*="0"] {
+            background-color: #2ea043 !important;
+        }
+
+        .semantic-prob .btn-metric.active[id*="1"] {
+            background-color: #a8cf45 !important;
+            color: #1b3a57 !important;
+        }
+
+        .semantic-prob .btn-metric.active[id*="2"] {
+            background-color: #ffce00 !important;
+            color: #1b3a57 !important;
+        }
+
+        .semantic-prob .btn-metric.active[id*="3"] {
+            background-color: #db6d28 !important;
+        }
+
+        .semantic-prob .btn-metric.active[id*="4"] {
+            background-color: #f85149 !important;
+        }
+
+        .semantic-diff .btn-metric.active {
+            color: white !important;
+            border-color: transparent !important;
+        }
+
+        .semantic-diff .btn-metric.active[id*="4"] {
+            background-color: #2ea043 !important;
+        }
+
+        .semantic-diff .btn-metric.active[id*="3"] {
+            background-color: #a8cf45 !important;
+            color: #1b3a57 !important;
+        }
+
+        .semantic-diff .btn-metric.active[id*="2"] {
+            background-color: #ffce00 !important;
+            color: #1b3a57 !important;
+        }
+
+        .semantic-diff .btn-metric.active[id*="1"] {
+            background-color: #db6d28 !important;
+        }
+
+        .semantic-diff .btn-metric.active[id*="0"] {
+            background-color: #f85149 !important;
+        }
+
+        .score-container {
+            text-align: center;
+        }
+
+        .result-score {
+            font-size: 5rem;
+            font-weight: 900;
+            line-height: 1;
+            margin: 10px 0;
+            transition: color 0.5s;
+            color: #ffce00;
+        }
+    </style>
+
+    <style>
+        .chart-container {
+            display: flex;
+            align-items: flex-end;
+            gap: 40px;
+            height: 150px;
+            padding: 20px 40px;
+            background: rgba(0, 0, 0, 0.1);
+            border-radius: 12px;
+            margin-bottom: 2rem;
+            position: relative;
+        }
+
+        .chart-step {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            position: relative;
+        }
+
+        .chart-bar {
+            width: 100%;
+            border-radius: 4px 4px 0 0;
+            transition: height 0.5s ease, background-color 0.3s;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: white;
+            font-weight: bold;
+            font-size: 1.2rem;
+            box-shadow: 0 -4px 10px rgba(0, 0, 0, 0.2);
+        }
+
+        .chart-v-tag {
+            background: rgba(0, 0, 0, 0.3);
+            padding: 2px 8px;
+            border-radius: 10px;
+            margin-bottom: 5px;
+        }
+
+        .chart-label {
+            margin-top: 10px;
+            font-size: 0.75rem;
+            color: var(--text-light);
+            text-align: center;
+            white-space: nowrap;
+        }
+    </style>
+
+    <!-- Styles additionnels pour la visualisation -->
+    <style>
+        .summary-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 15px;
+        }
+
+        .summary-card {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 1rem;
+            text-align: left;
+            transition: 0.3s;
+        }
+
+        .summary-card.active-step-card {
+            box-shadow: 0 0 20px rgba(255, 255, 255, 0.15);
+            background: rgba(255, 255, 255, 0.08) !important;
+            transform: translateY(-5px);
+            z-index: 10;
+            border-color: rgba(255, 255, 255, 0.4);
+        }
+
+        .summary-card h4 {
+            font-size: 0.85rem;
+            color: var(--accent-color);
+            margin-bottom: 0.8rem;
+            text-transform: uppercase;
+        }
+
+        .summary-metric {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.75rem;
+            margin-bottom: 5px;
+            padding-bottom: 5px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .summary-val {
+            font-weight: bold;
+            color: var(--text-main);
+        }
+
+        .summary-status-icon {
+            font-size: 1.2rem;
+            margin-bottom: 10px;
+        }
+    </style>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
+    <script>
+        // --- LOGIC ---
+        const app = {
+            state: {
+                mode: 'express', // express, standard, advanced
+                currentStep: 0,
+                steps: [
+                    { name: 'Connaître', prob: 2, diff: 2, socle: 0 },
+                    { name: 'Rentrer', prob: 2, diff: 2, socle: 0 },
+                    { name: 'Trouver', prob: 2, diff: 2, socle: 0 },
+                    { name: 'Exploiter', prob: 2, diff: 2, socle: 0 }
+                ]
+            },
+
+            matrix: [
+                [1, 1, 1, 0, 0], // Prob 0
+                [2, 2, 2, 1, 0], // Prob 1
+                [3, 3, 2, 2, 1], // Prob 2
+                [4, 3, 3, 2, 1], // Prob 3
+                [4, 4, 3, 2, 1]  // Prob 4
+            ],
+
+            init() {
+                this.renderMetricButtons('prob', ['Très Faible (0)', 'Faible (1)', 'Moyenne (2)', 'Élevée (3)', 'Quasi-Certaine (4)']);
+                this.renderMetricButtons('diff', ['Négligeable (0)', 'Faible (1)', 'Modérée (2)', 'Élevée (3)', 'Très Élevée (4)']);
+                this.render();
+            },
+
+            renderMetricButtons(type, labels) {
+                const container = document.getElementById(`btns-${type}`);
+                container.innerHTML = labels.map((l, i) => `
+                    <button class="btn-metric" id="${type}-${i}" onclick="app.updateMetric('${type}', ${i})">
+                        ${l} (${i})
+                    </button>
+                `).join('');
+            },
+
+            setMode(m) {
+                this.state.mode = m;
+                // Reset styling
+                document.querySelectorAll('.btn-mode').forEach(b => b.classList.remove('active'));
+                document.getElementById(`mode-${m}`).classList.add('active');
+                this.render();
+            },
+
+            setActiveStep(idx) {
+                this.state.currentStep = idx;
+                this.render();
+            },
+
+            updateMetric(type, val) {
+                const step = this.state.steps[this.state.currentStep];
+                step[type] = val;
+                this.render();
+            },
+
+            calculate() {
+                const s = this.state;
+                if (s.mode === 'express') {
+                    const n = s.steps[0];
+                    return { score: this.getFinalScore(n.prob, n.diff, n.socle), p: n.prob, d: n.diff };
+                }
+
+                // Pour Standard/Advanced, on calcule le chemin (Séquentiel)
+                const probs = s.steps.map(n => n.prob);
+
+                // Formule de Difficulté Cumulée EBIOS RM (Atelier 4)
+                let cumulativeDiffs = [];
+                let runningMin = 999;
+
+                const stepsDiffs = (s.mode === 'advanced')
+                    ? s.steps.map(n => n.diff)
+                    : s.steps.map(() => 2); // Modérée par défaut
+
+                stepsDiffs.forEach((d, i) => {
+                    if (i === 0) {
+                        cumulativeDiffs.push(d);
+                    } else {
+                        runningMin = Math.min(runningMin, stepsDiffs[i - 1]);
+                        cumulativeDiffs.push(Math.max(d, runningMin));
+                    }
+                });
+
+                const globalProb = Math.min(...probs);
+                const globalDiff = cumulativeDiffs[cumulativeDiffs.length - 1];
+
+                const socles = s.steps.map(n => n.socle);
+                const globalSocle = Math.max(...socles);
+
+                return {
+                    score: this.getFinalScore(globalProb, globalDiff, globalSocle),
+                    p: globalProb,
+                    d: globalDiff
+                };
+            },
+
+            renderMatrix(activeP, activeD) {
+                const container = document.getElementById('ebios-matrix');
+                let html = '<div class="matrix-empty"></div>';
+
+                // Header (Difficulté)
+                html += '<div class="matrix-header-x">DIFFICULTÉ TECHNIQUE (0 → 4)</div>';
+
+                for (let p = 4; p >= 0; p--) {
+                    // Y Label (Probabilité)
+                    if (p === 2) html += '<div class="matrix-header-y">PROBABILITÉ</div>';
+                    else html += '<div></div>';
+
+                    for (let d = 0; d <= 4; d++) {
+                        const score = this.matrix[p][d];
+                        const isActive = (p === activeP && d === activeD);
+                        html += `
+                            <div class="matrix-cell v${score + 1}-cell ${isActive ? 'active-cell' : ''}">
+                                V${score}
+                            </div>`;
+                    }
+                }
+                container.innerHTML = html;
+            },
+
+            getFinalScore(p, d, s) {
+                // Application de la matrice
+                let base = this.matrix[p][d];
+
+                // Impact du socle (Simplification logique : s=3 => V1, s=0 => pas de modif)
+                if (s === 3) return 1;
+                if (s === 2 && base > 2) return base - 1;
+                if (s === 1 && base > 3) return base - 1;
+
+                return base;
+            },
+
+            render() {
+                const s = this.state;
+                const active = s.steps[s.currentStep];
+
+                // Visibility
+                document.getElementById('stepper-ui').style.display = s.mode === 'express' ? 'none' : 'flex';
+                document.getElementById('active-step-title').style.display = s.mode === 'express' ? 'none' : 'block';
+                document.getElementById('group-technical').style.display = s.mode === 'advanced' ? 'block' : 'none';
+                document.getElementById('step-name').textContent = `Étape : ${active.name}`;
+
+                // Description Difficulté (Dynamique selon image)
+                const diffDescs = [
+                    "Difficulté négligeable : ressources déjà disponibles.",
+                    "Difficulté faible : ressources engagées faibles.",
+                    "Difficulté modérée : ressources significatives.",
+                    "Difficulté élevée : ressources importantes.",
+                    "Difficulté très élevée : ressources très importantes."
+                ];
+                document.getElementById('diff-desc').textContent = diffDescs[active.diff];
+
+                // Update Steps Navigation
+                document.querySelectorAll('.step-item').forEach((item, i) => {
+                    item.classList.toggle('active', i === s.currentStep);
+                });
+
+                // Update Metric Buttons
+                ['prob', 'diff', 'socle'].forEach(type => {
+                    document.querySelectorAll(`#btns-${type} .btn-metric`).forEach((btn, i) => {
+                        btn.classList.toggle('active', i === active[type]);
+                    });
+                });
+
+                // Global Score & Matrix
+                const result = this.calculate();
+                const scoreEl = document.getElementById('global-score');
+                scoreEl.textContent = `V${result.score}`;
+                scoreEl.style.color = ["#2ea043", "#2ea043", "#d29922", "#db6d28", "#f85149"][result.score];
+
+                this.renderMatrix(result.p, result.d);
+                this.renderSummary();
+                this.renderChart();
+            },
+
+            renderChart() {
+                const container = document.getElementById('likelihood-chart');
+                if (this.state.mode === 'express') {
+                    document.getElementById('reporting-viz').style.display = 'none';
+                    return;
+                }
+                document.getElementById('reporting-viz').style.display = 'block';
+
+                // On calcule le score partiel à chaque étape
+                let currentProbs = [];
+                let currentDiffs = []; // This will store the actual diff values for each step
+                let runningMinDiff = 999; // Initialize with a high value for cumulative diff calculation
+
+                const html = this.state.steps.map((step, i) => {
+                    currentProbs.push(step.prob);
+
+                    const d = (this.state.mode === 'advanced') ? step.diff : 2; // Get current step's diff
+                    currentDiffs.push(d); // Store it for runningMinDiff calculation
+
+                    let cumDiff;
+                    if (i === 0) {
+                        cumDiff = d;
+                    } else {
+                        // Update runningMinDiff based on previous step's actual diff
+                        runningMinDiff = Math.min(runningMinDiff, currentDiffs[i - 1]);
+                        cumDiff = Math.max(d, runningMinDiff);
+                    }
+
+                    const stepScore = this.getFinalScore(Math.min(...currentProbs), cumDiff, step.socle);
+                    const height = ((stepScore + 1) / 5) * 100;
+                    const color = ["#2ea043", "#a8cf45", "#ffce00", "#db6d28", "#f85149"][stepScore];
+
+                    return `
+                        <div class="chart-step">
+                            <span class="chart-v-tag" style="background-color:${color}; color:${stepScore === 1 || stepScore === 2 ? '#1b3a57' : 'white'}">V${stepScore}</span>
+                            <div class="chart-bar" style="height:${height}%; background-color:${color}; opacity: 0.8"></div>
+                            <div class="chart-label">${step.name}</div>
+                        </div>
+                    `;
+                }).join('');
+
+                container.innerHTML = html;
+            },
+
+            renderSummary() {
+                const container = document.getElementById('summary-visualization');
+                if (this.state.mode === 'express') {
+                    container.innerHTML = '';
+                    return;
+                }
+
+                container.innerHTML = this.state.steps.map((step, i) => {
+                    const isActive = i === this.state.currentStep;
+                    const pLabel = ['X', '0', '1', '2', '3', '4'][step.prob + 1]; // Offset for label if needed, but let's stick to indices
+
+                    // Score individuel pour la couleur de la carte
+                    const individualScore = this.getFinalScore(step.prob, step.diff, step.socle);
+                    const color = ["#2ea043", "#a8cf45", "#ffce00", "#db6d28", "#f85149"][individualScore];
+                    const textColor = (individualScore === 1 || individualScore === 2) ? '#1b3a57' : '#fff';
+
+                    const pText = ['Très Faible', 'Faible', 'Moyenne', 'Élevée', 'Quasi-Certaine'][step.prob];
+                    const dText = ['Négligeable', 'Faible', 'Modérée', 'Élevée', 'Très Élevée'][step.diff];
+
+                    return `
+                        <div class="summary-card ${isActive ? 'active-step-card' : ''}" 
+                             onclick="app.setActiveStep(${i})" 
+                             style="border-left: 5px solid ${color}; background: ${isActive ? 'rgba(255,255,255,0.1)' : 'rgba(255,255,255,0.02)'}">
+                            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+                                <span style="font-size:0.7rem; font-weight:bold; letter-spacing:1px; color:${isActive ? '#fff' : 'var(--text-light)'}">STEP ${i + 1}</span>
+                                <span style="background:${color}; color:${textColor}; padding:3px 10px; border-radius:12px; font-weight:900; font-size:0.8rem; box-shadow: 0 2px 8px rgba(0,0,0,0.2)">V${individualScore}</span>
+                            </div>
+                            <div style="font-size: 1rem; font-weight: 800; margin-bottom: 15px; color: ${isActive ? '#fff' : color}">${step.name}</div>
+                            
+                            <div class="summary-metric">
+                                <span style="opacity:0.8">Probabilité</span>
+                                <span class="summary-val">${pText} (${step.prob})</span>
+                            </div>
+                            <div class="summary-metric" style="${this.state.mode === 'advanced' ? '' : 'display:none'}">
+                                <span style="opacity:0.8">Difficulté</span>
+                                <span class="summary-val">${dText} (${step.diff})</span>
+                            </div>
+                            <div class="summary-metric">
+                                <span style="opacity:0.8">Socle</span>
+                                <span class="summary-val">${['Nulle', 'Min.', 'Maj.', 'Max.'][step.socle]}</span>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+            },
+
+            exportJSON() {
+                const blob = new Blob([JSON.stringify(this.state, null, 2)], { type: 'application/json' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a'); a.href = url; a.download = 'ebios_rmv2.json'; a.click();
+            },
+
+            exportPDF() {
+                const { jsPDF } = window.jspdf;
+                const doc = new jsPDF();
+                doc.setFontSize(22); doc.text("EBIOS RM Calculator v2 - Rapport", 20, 20);
+                doc.setFontSize(14); doc.text(`Mode : ${this.state.mode.toUpperCase()}`, 20, 35);
+                doc.text(`Vraisemblance Globale : V${this.calculate()}`, 20, 45);
+
+                let y = 60;
+                this.state.steps.forEach(s => {
+                    doc.text(`${s.name}: P${s.prob} D${this.state.mode === 'advanced' ? s.diff : '-'} Socle:${s.socle}`, 25, y);
+                    y += 10;
+                });
+                doc.save('ebios_report_v2.pdf');
+            }
+        };
+
+        function toggleTheme() {
+            const body = document.body;
+            body.dataset.theme = body.dataset.theme === 'dark' ? 'light' : 'dark';
+        }
+
+        app.init();
+    </script>
+</body>
+
+</html>
