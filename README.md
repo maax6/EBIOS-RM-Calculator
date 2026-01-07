@@ -1,4 +1,4 @@
-# Calculateur de Vraisemblance EBIOS RM (Atelier 4)
+# Calculateur de Vraisemblance EBIOS Risk Management
 
 ## 🎯 Utilité du projet
 Ce projet est un outil interactif conçu pour les experts en cybersécurité et les Risk Managers. Il permet de calculer et de visualiser rapidement la **vraisemblance des scénarios d'attaque** en suivant strictement la méthodologie **EBIOS RM (Atelier 4)** de l'ANSSI.
@@ -25,3 +25,4 @@ L'objectif est de transformer une évaluation technique complexe en un tableau d
 
 ---
 *Outil développé pour simplifier l'application de la méthode EBIOS RM au quotidien.*
+
