@@ -184,6 +184,8 @@
         /* Modern Segmented Selector */
         .segmented-selector {
             display: flex;
+            flex-wrap: wrap;
+            /* Autoriser le passage à la ligne */
             position: relative;
             background: rgba(255, 255, 255, 0.03);
             border-radius: 12px;
@@ -191,22 +193,30 @@
             padding: 4px;
             z-index: 1;
             user-select: none;
+            gap: 4px;
+            /* Ajout d'un gap pour le wrap */
         }
 
         .seg-item {
             flex: 1;
+            min-width: 80px;
+            /* Taille minimum pour éviter l'écrasement */
             text-align: center;
-            padding: 10px 0;
+            padding: 10px 4px;
             font-size: 0.75rem;
             font-weight: 700;
             cursor: pointer;
             z-index: 2;
-            transition: color 0.3s;
+            transition: all 0.3s;
             color: var(--text-light);
+            border-radius: 8px;
+            /* Rayon pour le mode 'bouton' quand ça wrap */
         }
 
         .seg-item.active {
             color: white;
+            background: rgba(88, 166, 255, 0.1);
+            /* Fallback si l'indicateur est caché ou mal placé */
         }
 
         .seg-indicator {
@@ -223,27 +233,31 @@
         /* Scoring and Matrix */
         .matrix-grid {
             display: grid;
-            grid-template-columns: 35px repeat(5, 1fr);
-            gap: 6px;
+            grid-template-columns: 20px repeat(5, 1fr);
+            gap: 2px;
             text-align: center;
-            margin-top: 1.5rem;
-            padding: 10px;
+            padding: 5px;
             background: rgba(0, 0, 0, 0.2);
-            border-radius: 12px;
+            border-radius: 10px;
+            max-width: 270px;
+            width: 100%;
+            margin-top: 0.5rem;
+            /* Espace sous le titre */
         }
 
         .matrix-cell {
-            aspect-ratio: 1;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-weight: 900;
-            font-size: 0.8rem;
-            border-radius: 6px;
+            font-weight: 800;
+            font-size: 0.65rem;
+            padding: 6px 2px;
+            border-radius: 4px;
             transition: all 0.3s ease;
             cursor: default;
             opacity: 0.5;
             position: relative;
+            min-height: 28px;
         }
 
         .matrix-cell.active-cell {
@@ -252,7 +266,6 @@
             box-shadow: 0 0 20px rgba(255, 255, 255, 0.4);
             z-index: 10;
             border: 2px solid white;
-            animation: pulseCell 2s infinite ease-in-out;
         }
 
         .matrix-cell.row-active,
@@ -403,18 +416,267 @@
             line-height: 1;
         }
 
-        @media (max-width: 768px) {
+        /* Nouvelle structure du panneau de score */
+        .score-panel {
+            position: sticky;
+            top: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+            align-items: center;
+            width: 100%;
+            max-width: 350px;
+        }
+
+        .section-title {
+            display: block;
+            width: 100%;
+            text-align: center;
+            font-size: 0.65rem;
+            font-weight: 900;
+            color: var(--text-light);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 1rem;
+            opacity: 0.7;
+        }
+
+        /* Section 1: Matrice */
+        .matrix-section {
+            width: 100%;
+            padding-bottom: 2rem;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        /* Section 2: Calcul */
+        .calculation-section {
+            width: 100%;
+            padding-bottom: 2rem;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .calc-flow {
+            display: grid;
+            grid-template-columns: minmax(50px, 1fr) 20px minmax(70px, 1.2fr) 20px minmax(50px, 1fr);
+            gap: 0.4rem;
+            align-items: center;
+            padding: 0.8rem;
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: 10px;
+            width: 100%;
+            max-width: 280px;
+            margin-top: 0.5rem;
+        }
+
+        .calc-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.5rem;
+            min-width: 0;
+        }
+
+        .calc-label-small {
+            font-size: 0.6rem;
+            font-weight: 700;
+            color: var(--text-light);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            white-space: nowrap;
+        }
+
+        .calc-badge {
+            font-weight: 900;
+            font-size: 0.85rem;
+            padding: 0.35rem 0.5rem;
+            border-radius: 6px;
+            min-width: 60px;
+            text-align: center;
+            transition: all 0.3s;
+        }
+
+        .calc-badge.socle {
+            background: var(--accent-color);
+            color: white;
+        }
+
+        .calc-arrow-big {
+            font-size: 1.5rem;
+            color: var(--text-light);
+            opacity: 0.4;
+            font-weight: 300;
+        }
+
+        /* Section 3: Score Final */
+        .final-score-section {
+            text-align: center;
+            padding: 2rem 1rem;
+            background: linear-gradient(135deg, rgba(88, 166, 255, 0.05), rgba(88, 166, 255, 0.02));
+            border-radius: 16px;
+            border: 1px solid rgba(88, 166, 255, 0.2);
+        }
+
+        .global-score-big {
+            font-size: 5.5rem;
+            font-weight: 900;
+            font-family: 'Outfit', sans-serif;
+            line-height: 1;
+            margin-top: 1rem;
+        }
+
+        /* Boutons d'export */
+        .export-buttons {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 0.75rem;
+        }
+
+        .export-buttons .btn-mode {
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        /* ==========================================================================
+           RESPONSIVE DESIGN
+           ========================================================================== */
+
+        /* Tablette et Desktop moyen ( < 1024px ) */
+        @media (max-width: 1024px) {
+            .container {
+                max-width: 95%;
+                padding: 10px;
+            }
+        }
+
+        /* Mobile et Tablette Portrait ( < 1024px ) */
+        @media (max-width: 1024px) {
             .dashboard-grid {
                 grid-template-columns: 1fr;
+            }
+
+            .seg-indicator {
+                display: none;
+                /* Désactivé dès que le wrap peut arriver */
+            }
+
+            .seg-item.active {
+                background: var(--accent-color);
+                box-shadow: 0 4px 10px rgba(88, 166, 255, 0.3);
+            }
+
+            .side-panel {
+                order: -1;
+                /* Score en haut sur tablette/mobile */
+            }
+
+            .score-panel {
+                position: relative;
+                top: 0;
+                margin-bottom: 2rem;
+            }
+
+            .stepper-nav {
+                overflow-x: auto;
+                padding-bottom: 10px;
+                justify-content: flex-start;
+                gap: 20px;
+            }
+
+            .step-item {
+                flex: none;
+                min-width: 70px;
             }
 
             .chart-container {
                 gap: 15px;
                 padding: 10px;
+                height: 150px;
             }
 
             .chart-bar {
-                width: 35px;
+                width: 30px;
+            }
+
+            .metric-label {
+                font-size: 0.65rem;
+            }
+
+            header h1 {
+                font-size: 1.5rem;
+            }
+        }
+
+        /* Petit Mobile ( < 480px ) */
+        @media (max-width: 480px) {
+            .card {
+                padding: 1rem;
+            }
+
+            /* Metric Groups: On empile ou on réduit drastiquement */
+            .segmented-selector {
+                flex-wrap: wrap;
+                background: none;
+                border: none;
+                padding: 0;
+                gap: 8px;
+            }
+
+            .seg-item {
+                background: rgba(255, 255, 255, 0.05);
+                border: 1px solid var(--border-color);
+                border-radius: 8px;
+                flex: none;
+                width: calc(50% - 4px);
+                /* 2 par ligne */
+                padding: 10px 4px;
+                font-size: 0.65rem;
+            }
+
+            .seg-item.active {
+                background: var(--accent-color);
+                border-color: var(--accent-color);
+                box-shadow: 0 4px 10px rgba(88, 166, 255, 0.3);
+            }
+
+            .seg-indicator {
+                display: none;
+                /* Cache l'indicateur glissant sur très petit écran */
+            }
+
+            /* Ajustement pour les probabilités (5 items) */
+            #sel-prob .seg-item {
+                width: calc(33.33% - 6px);
+            }
+
+            #sel-prob .seg-item:last-child {
+                width: 100%;
+            }
+
+            /* Matrix reduction for mobile */
+            .matrix-grid {
+                max-width: 100%;
+                transform: scale(1);
+                margin: 0 auto;
+            }
+
+            .global-score-big {
+                font-size: 4rem;
+            }
+        }
+
+        /* Desktop Large ( > 1400px ) */
+        @media (min-width: 1400px) {
+            .container {
+                max-width: 1300px;
+            }
+
+            .dashboard-grid {
+                gap: 3rem;
             }
         }
     </style>
@@ -467,17 +729,44 @@
             </div>
 
             <div class="side-panel">
-                <div class="card" style="position:sticky; top:20px;">
-                    <div class="global-score-box" style="text-align:center; margin-bottom:2rem;">
-                        <span class="metric-label">VRAISEMBLANCE GLOBALE</span>
-                        <div id="global-score">V1</div>
+                <div class="card score-panel">
+                    <!-- 1. MATRICE EBIOS RM (Référence) -->
+                    <div class="matrix-section">
+                        <span class="section-title">MATRICE EBIOS RM</span>
+                        <div id="ebios-matrix" class="matrix-grid"></div>
                     </div>
-                    <div id="ebios-matrix" class="matrix-grid"></div>
-                    <div style="margin-top:2rem; display:flex; gap:10px;">
-                        <button class="btn-mode" style="background:rgba(255,255,255,0.05); flex:1"
-                            onclick="app.exportJSON()">JSON</button>
-                        <button class="btn-mode" style="background:rgba(255,255,255,0.05); flex:1"
-                            onclick="app.exportPDF()">PDF</button>
+
+                    <!-- 2. CALCUL (Transformation) -->
+                    <div class="calculation-section">
+                        <span class="section-title">CALCUL</span>
+                        <div class="calc-flow">
+                            <div class="calc-item">
+                                <span class="calc-label-small">Matrice</span>
+                                <div id="calc-raw-score" class="calc-badge">V4</div>
+                            </div>
+                            <div class="calc-arrow-big">→</div>
+                            <div class="calc-item">
+                                <span class="calc-label-small">Socle</span>
+                                <div id="calc-socle-level" class="calc-badge socle">Nul</div>
+                            </div>
+                            <div class="calc-arrow-big">→</div>
+                            <div class="calc-item">
+                                <span class="calc-label-small">Résultat</span>
+                                <div id="calc-final-score" class="calc-badge">V4</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 3. SCORE FINAL (Résultat) -->
+                    <div class="final-score-section">
+                        <span class="section-title">VRAISEMBLANCE GLOBALE</span>
+                        <div id="global-score" class="global-score-big">V1</div>
+                    </div>
+
+                    <!-- Boutons Export -->
+                    <div class="export-buttons">
+                        <button class="btn-mode" onclick="app.exportJSON()">JSON</button>
+                        <button class="btn-mode" onclick="app.exportPDF()">PDF</button>
                     </div>
                 </div>
             </div>
@@ -769,7 +1058,46 @@
                 scoreEl.textContent = `V${res.score}`;
                 scoreEl.style.color = ["#2ea043", "#a8cf45", "#ffce00", "#db6d28", "#f85149"][res.score];
                 this.renderMatrix(res.p, res.d);
+                this.updateCalculationIndicator(res, active);
                 this.renderSummary();
+            },
+
+            updateCalculationIndicator(res, activeStep) {
+                const colors = ["#2ea043", "#a8cf45", "#ffce00", "#db6d28", "#f85149"];
+                const socleLabels = ['Nul', 'Limité', 'Important', 'Maximal'];
+
+                // Calculer le score brut de la matrice (sans socle)
+                const rawScore = this.matrix[activeStep.prob][activeStep.diff];
+
+                // Score final (après socle)
+                const finalScore = this.getFinalScore(activeStep.prob, activeStep.diff, activeStep.socle);
+
+                // Mettre à jour l'affichage
+                const rawScoreEl = document.getElementById('calc-raw-score');
+                const socleEl = document.getElementById('calc-socle-level');
+                const finalScoreEl = document.getElementById('calc-final-score');
+
+                // Score brut
+                rawScoreEl.textContent = `V${rawScore}`;
+                rawScoreEl.style.background = colors[rawScore];
+                rawScoreEl.style.color = (rawScore === 1 || rawScore === 2) ? '#1b3a57' : '#fff';
+
+                // Socle
+                socleEl.textContent = socleLabels[activeStep.socle];
+                socleEl.style.background = activeStep.socle > 0 ? '#58a6ff' : 'rgba(255,255,255,0.1)';
+                socleEl.style.color = activeStep.socle > 0 ? '#fff' : 'var(--text-light)';
+
+                // Score final
+                finalScoreEl.textContent = `V${finalScore}`;
+                finalScoreEl.style.background = colors[finalScore];
+                finalScoreEl.style.color = (finalScore === 1 || finalScore === 2) ? '#1b3a57' : '#fff';
+
+                // Ajouter une bordure pulsante si le socle a modifié le score
+                if (rawScore !== finalScore) {
+                    finalScoreEl.style.boxShadow = `0 0 15px ${colors[finalScore]}`;
+                } else {
+                    finalScoreEl.style.boxShadow = 'none';
+                }
             },
 
             exportJSON() {
