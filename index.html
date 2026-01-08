@@ -755,6 +755,10 @@
                                 <div id="calc-final-score" class="calc-badge">V4</div>
                             </div>
                         </div>
+                        <div id="calc-justification"
+                            style="margin-top: 1.5rem; font-size: 0.75rem; color: var(--text-light); line-height: 1.5; font-style: italic; background: rgba(255,255,255,0.02); padding: 12px; border-radius: 8px; border-left: 3px solid var(--accent-color);">
+                            Initialisez un calcul pour voir la justification détaillée.
+                        </div>
                     </div>
 
                     <!-- 3. SCORE FINAL (Résultat) -->
@@ -1108,6 +1112,27 @@
                 } else {
                     finalScoreEl.style.boxShadow = 'none';
                 }
+
+                // GÉNÉRATION DE LA JUSTIFICATION TEXTUELLE (100 combinaisons gérées par logique)
+                const probLabels = ['très faible', 'faible', 'significative', 'très élevée', 'quasi certaine'];
+                const diffLabels = ['négligeables', 'faibles', 'modérées', 'élevées', 'très élevées'];
+
+                let text = `Un attaquant disposant de ressources ${diffLabels[activeStep.diff]} a une probabilité ${probLabels[activeStep.prob]} de succès, `;
+                text += `ce qui établit un score matriciel de **V${rawScore}**. `;
+
+                if (activeStep.socle === 0) {
+                    text += "En l'absence de socle de sécurité, ce score est maintenu comme vraisembance finale.";
+                } else if (activeStep.socle === 1) {
+                    text += rawScore >= 3
+                        ? "Le socle de sécurité limité permet de réduire légèrement ce risque élevé d'un niveau."
+                        : "Le socle limité est jugé insuffisant pour réduire davantage ce niveau de risque.";
+                } else if (activeStep.socle === 2) {
+                    text += "La mise en œuvre d'un socle important (ex: MFA + Chiffrement) permet de réduire systématiquement la vraisemblance d'un niveau.";
+                } else if (activeStep.socle === 3) {
+                    text += "Le socle de sécurité maximal (Défense en profondeur) garantit que le risque est ramené à son niveau résiduel minimal (V1).";
+                }
+
+                document.getElementById('calc-justification').innerHTML = text;
             },
 
             exportJSON() {
