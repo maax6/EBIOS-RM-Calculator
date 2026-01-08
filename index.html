@@ -815,6 +815,10 @@
                 this.state.mode = m;
                 document.querySelectorAll('.btn-mode').forEach(b => b.classList.remove('active'));
                 document.getElementById(`mode-${m}`).classList.add('active');
+
+                // En mode Express, on se remet sur la première étape pour une évaluation globale
+                if (m === 'express') this.state.currentStep = 0;
+
                 this.render();
             },
 
@@ -827,26 +831,31 @@
 
             calculate() {
                 const s = this.state;
-                if (s.mode === 'express') {
-                    const n = s.steps[s.currentStep];
-                    return { score: this.getFinalScore(n.prob, n.diff, n.socle), p: n.prob, d: n.diff };
+                const isAdvanced = s.mode === 'advanced';
+                const isExpress = s.mode === 'express';
+
+                // Évaluation par étape
+                const stepResults = s.steps.map(st => {
+                    // Les modes Express et Standard forcent la difficulté à "Modérée" (2)
+                    const d = isAdvanced ? st.diff : 2;
+                    return {
+                        score: this.getFinalScore(st.prob, d, st.socle),
+                        p: st.prob,
+                        d: d
+                    };
+                });
+
+                if (isExpress) {
+                    // En mode Express, on ne considère que l'étape actuelle comme évaluation globale
+                    return stepResults[s.currentStep];
                 }
 
-                // LOGIQUE EBIOS RM OFFICIELLE - VERSION CORRIGÉE
-                // Le score global est le MINIMUM des scores de chaque étape
-                // Le socle s'applique PAR ÉTAPE, pas globalement
+                // Modes Standard et Advanced : Règle du maillon faible (Score Minimum)
+                const globalScore = Math.min(...stepResults.map(r => r.score));
 
-                // Calculer le score de chaque étape individuellement
-                const stepScores = s.steps.map(st =>
-                    this.getFinalScore(st.prob, st.diff, st.socle)
-                );
-
-                // Le maillon faible détermine le score global
-                const globalScore = Math.min(...stepScores);
-
-                // Pour l'affichage de la matrice, on utilise les valeurs cumulées
-                const probs = s.steps.map(st => st.prob);
-                const diffs = s.steps.map(st => st.diff);
+                // Pour la matrice (affichage du point cumulé)
+                const probs = stepResults.map(r => r.p);
+                const diffs = stepResults.map(r => r.d);
 
                 const globalProb = Math.min(...probs);
                 const globalDiff = this.calculateCumulativeDifficulty(diffs);
@@ -1036,8 +1045,9 @@
                     </div>
                 `).join('');
 
+                document.getElementById('stepper-ui').style.display = (s.mode === 'express') ? 'none' : 'flex';
                 document.getElementById('group-technical').style.display = (s.mode === 'advanced') ? 'block' : 'none';
-                document.getElementById('step-name').textContent = `Étape : ${active.name}`;
+                document.getElementById('step-name').textContent = (s.mode === 'express') ? "Évaluation Globale" : `Étape : ${active.name}`;
 
                 const diffDescs = [
                     "0. Négligeable : Ressources publiques.",
