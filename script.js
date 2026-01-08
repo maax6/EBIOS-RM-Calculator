@@ -1,6 +1,6 @@
 /**
  * EBIOS RM Tool - Logic & State Management
- * Version: 2.0 (Clean Architecture, No Modes)
+ * Version: 2.1 (Strict EBIOS RM: No V0)
  */
 
 window.app = {
@@ -16,13 +16,13 @@ window.app = {
     },
 
     // Matrice EBIOS RM officielle (Ligne: P0-P4, Colonne: D0-D4)
-    // Valeurs: 0=V0, 1=V1... 4=V4
+    // Valeurs: 1=V1 ... 4=V4 (Pas de V0 en EBIOS RM strict)
     matrix: [
-        [1, 1, 1, 0, 0], // P0 (Très Faible)
-        [2, 2, 2, 1, 0], // P1 (Faible)
-        [3, 3, 2, 2, 1], // P2 (Significative)
-        [4, 3, 3, 2, 1], // P3 (Très Élevée)
-        [4, 4, 3, 2, 1]  // P4 (Quasi Certaine)
+        [1, 1, 1, 1, 1], // P0
+        [2, 2, 2, 1, 1], // P1
+        [3, 3, 2, 2, 1], // P2
+        [4, 3, 3, 2, 1], // P3
+        [4, 4, 3, 2, 1]  // P4
     ],
 
     init() {
@@ -49,11 +49,12 @@ window.app = {
         const v_raw = this.matrix[p][d];
 
         // 2. Application du Socle (Réduction du risque)
-        if (s === 3) return v_raw > 0 ? 1 : 0; // Maximal -> Plafond V1
-        if (s === 2) return Math.max(v_raw - 1, (v_raw > 0 ? 1 : 0)); // Important -> -1
-        if (s === 1 && v_raw >= 3) return v_raw - 1; // Limité -> Réduit seulement les forts risques
+        // STRICT EBIOS : Le score ne peut jamais descendre en dessous de 1 (V1)
+        if (s === 3) return 1;
+        if (s === 2) return Math.max(v_raw - 1, 1);
+        if (s === 1 && v_raw >= 3) return Math.max(v_raw - 1, 1);
 
-        return v_raw; // Socle Nul ou impact insuffisant
+        return Math.max(v_raw, 1);
     },
 
     calculateGlobal() {
@@ -127,7 +128,7 @@ window.app = {
                     }
                     else if (type === 'diff') {
                         // D0=Rouge (Danger) ... D4=Vert (Sécurisé)
-                        color = colors[4 - i];
+                        color = colors[4 - i]; // D0=Rouge, D4=Vert
                     }
                     else if (type === 'socle') {
                         // Socle: Dégradé bleu
@@ -164,13 +165,13 @@ window.app = {
         const scoreEl = document.getElementById('global-score');
         scoreEl.textContent = `V${globalRes.score}`;
         scoreEl.className = `global-score-big`;
-        scoreEl.style.color = `var(--v${globalRes.score > 0 ? globalRes.score : 1})`; // Fallback color logic if needed
+        scoreEl.style.color = `var(--v${globalRes.score > 0 ? globalRes.score : 1})`;
 
         this.renderSummary();
     },
 
     updateCalculationPanel(raw, socle, final) {
-        const colors = ["#2ea043", "#a8cf45", "#ffce00", "#db6d28", "#f85149"]; // for JS usage if needed
+        const colors = ["#2ea043", "#a8cf45", "#ffce00", "#db6d28", "#f85149"];
         const socleLabels = ['Nul', 'Limité', 'Important', 'Maximal'];
 
         // Badges
@@ -312,7 +313,8 @@ window.app = {
         const tests = [
             { p: 4, d: 2, s: 0, expected: 3, name: "P4/D2 (Modérée) -> V3" }, // Standard
             { p: 4, d: 0, s: 0, expected: 4, name: "P4/D0 (Négligeable) -> V4 (Critique)" }, // Worst case
-            { p: 0, d: 4, s: 0, expected: 0, name: "P0/D4 (Etat) -> V0 (Impossible)" }, // Best case
+            // UPDATE: Strict EBIOS, pas de V0. Impossible = V1 (Minime, improbable mais possible)
+            { p: 0, d: 4, s: 0, expected: 1, name: "P0/D4 (Etat) -> V1 (Minime, pas 0)" },
 
             // Tests Socle
             { p: 4, d: 2, s: 1, expected: 2, name: "V3 + Socle Limité -> V2 (-1)" },
@@ -321,7 +323,10 @@ window.app = {
 
             // Edge cases socle
             { p: 2, d: 2, s: 1, expected: 2, name: "V2 + Socle Limité -> V2 (Pas d'effet sur moyen)" },
-            { p: 2, d: 2, s: 2, expected: 1, name: "V2 + Socle Important -> V1 (Effet)" }
+            { p: 2, d: 2, s: 2, expected: 1, name: "V2 + Socle Important -> V1 (Effet)" },
+
+            // Plancher V1
+            { p: 0, d: 3, s: 3, expected: 1, name: "P0/D3 + Socle Max -> V1 (Pas 0)" }
         ];
 
         let passed = 0;
