@@ -2,6 +2,7 @@
 
 Ce document liste les 100 combinaisons possibles en mode Advanced et la logique métier associée à chaque score final.
 
+**(AE_n) = Max { Indice_Diff(AE_n), Min (Indices_Diff(AE_1...n-1)) }**
 ## 🧠 Logique de base
 1. **Score Brut (V_raw)** : Déterminé par la matrice Probabilité (P) x Difficulté (D).
 2. **Impact Socle (V_final)** :

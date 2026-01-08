@@ -1079,57 +1079,59 @@
             updateCalculationIndicator(res, activeStep) {
                 const colors = ["#2ea043", "#a8cf45", "#ffce00", "#db6d28", "#f85149"];
                 const socleLabels = ['Nul', 'Limité', 'Important', 'Maximal'];
+                const mode = this.state.mode;
 
-                // Calculer le score brut de la matrice (sans socle)
-                const rawScore = this.matrix[activeStep.prob][activeStep.diff];
+                // FORCE: Si on n'est pas en mode avancé, la difficulté est TOUJOURS 2 (Modérée)
+                const d = (mode === 'advanced') ? activeStep.diff : 2;
+                const p = activeStep.prob;
+                const s = activeStep.socle;
 
-                // Score final (après socle)
-                const finalScore = this.getFinalScore(activeStep.prob, activeStep.diff, activeStep.socle);
+                // Calculs basés sur cette difficulté effective
+                const rawScore = this.matrix[p][d];
+                const finalScore = this.getFinalScore(p, d, s);
 
-                // Mettre à jour l'affichage
+                // Mettre à jour l'affichage des badges
                 const rawScoreEl = document.getElementById('calc-raw-score');
                 const socleEl = document.getElementById('calc-socle-level');
                 const finalScoreEl = document.getElementById('calc-final-score');
 
-                // Score brut
                 rawScoreEl.textContent = `V${rawScore}`;
                 rawScoreEl.style.background = colors[rawScore];
                 rawScoreEl.style.color = (rawScore === 1 || rawScore === 2) ? '#1b3a57' : '#fff';
 
-                // Socle
-                socleEl.textContent = socleLabels[activeStep.socle];
-                socleEl.style.background = activeStep.socle > 0 ? '#58a6ff' : 'rgba(255,255,255,0.1)';
-                socleEl.style.color = activeStep.socle > 0 ? '#fff' : 'var(--text-light)';
+                socleEl.textContent = socleLabels[s];
+                socleEl.style.background = s > 0 ? '#58a6ff' : 'rgba(255,255,255,0.1)';
+                socleEl.style.color = s > 0 ? '#fff' : 'var(--text-light)';
 
-                // Score final
                 finalScoreEl.textContent = `V${finalScore}`;
                 finalScoreEl.style.background = colors[finalScore];
                 finalScoreEl.style.color = (finalScore === 1 || finalScore === 2) ? '#1b3a57' : '#fff';
 
-                // Ajouter une bordure pulsante si le socle a modifié le score
-                if (rawScore !== finalScore) {
-                    finalScoreEl.style.boxShadow = `0 0 15px ${colors[finalScore]}`;
-                } else {
-                    finalScoreEl.style.boxShadow = 'none';
-                }
+                // Bordure pulsante si le socle a un impact
+                finalScoreEl.style.boxShadow = (rawScore !== finalScore) ? `0 0 15px ${colors[finalScore]}` : 'none';
 
-                // GÉNÉRATION DE LA JUSTIFICATION TEXTUELLE (100 combinaisons gérées par logique)
+                // Justification textuelle
                 const probLabels = ['très faible', 'faible', 'significative', 'très élevée', 'quasi certaine'];
                 const diffLabels = ['négligeables', 'faibles', 'modérées', 'élevées', 'très élevées'];
 
-                let text = `Un attaquant disposant de ressources ${diffLabels[activeStep.diff]} a une probabilité ${probLabels[activeStep.prob]} de succès, `;
+                let text = "";
+                if (mode !== 'advanced') {
+                    text += `<span style="color:var(--accent-color); font-weight:bold;">[Evaluation ${mode.toUpperCase()}]</span> On considère un attaquant de niveau **Modéré**. <br>`;
+                }
+
+                text += `Un attaquant disposant de ressources ${diffLabels[d]} a une probabilité ${probLabels[p]} de succès, `;
                 text += `ce qui établit un score matriciel de **V${rawScore}**. `;
 
-                if (activeStep.socle === 0) {
-                    text += "En l'absence de socle de sécurité, ce score est maintenu comme vraisembance finale.";
-                } else if (activeStep.socle === 1) {
+                if (s === 0) {
+                    text += "En l'absence de socle de sécurité, ce score est maintenu.";
+                } else if (s === 1) {
                     text += rawScore >= 3
-                        ? "Le socle de sécurité limité permet de réduire légèrement ce risque élevé d'un niveau."
-                        : "Le socle limité est jugé insuffisant pour réduire davantage ce niveau de risque.";
-                } else if (activeStep.socle === 2) {
-                    text += "La mise en œuvre d'un socle important (ex: MFA + Chiffrement) permet de réduire systématiquement la vraisemblance d'un niveau.";
-                } else if (activeStep.socle === 3) {
-                    text += "Le socle de sécurité maximal (Défense en profondeur) garantit que le risque est ramené à son niveau résiduel minimal (V1).";
+                        ? "Le socle limité réduit légèrement ce risque élevé d'un niveau."
+                        : "Le socle limité ne suffit pas à réduire ce niveau de risque.";
+                } else if (s === 2) {
+                    text += "Le socle important (MFA/Chiffrement) réduit systématiquement la vraisemblance d'un niveau.";
+                } else if (s === 3) {
+                    text += "Le socle maximal ramène le risque à son niveau résiduel minimal (V1).";
                 }
 
                 document.getElementById('calc-justification').innerHTML = text;
