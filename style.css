@@ -1,0 +1,586 @@
+:root {
+    --bg-color: #0d1117;
+    --card-bg: #161b22;
+    --text-main: #c9d1d9;
+    --text-light: #8b949e;
+    --accent-color: #58a6ff;
+    --border-color: #30363d;
+    --v1: #2ea043;
+    --v2: #a8cf45;
+    --v3: #ffce00;
+    --v4: #db6d28;
+    --v5: #f85149;
+}
+
+[data-theme="light"] {
+    --bg-color: #f6f8fa;
+    --card-bg: #ffffff;
+    --text-main: #24292f;
+    --text-light: #57606a;
+    --border-color: #d0d7de;
+}
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family: 'Inter', sans-serif;
+    background-color: var(--bg-color);
+    color: var(--text-main);
+    line-height: 1.5;
+    padding: 2rem;
+    transition: all 0.3s ease;
+}
+
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2rem;
+    border-bottom: 1px solid var(--border-color);
+    padding-bottom: 1rem;
+}
+
+h1 {
+    font-family: 'Outfit', sans-serif;
+    font-size: 1.8rem;
+    font-weight: 900;
+}
+
+.theme-toggle {
+    background: none;
+    border: 1px solid var(--border-color);
+    color: var(--text-main);
+    padding: 0.5rem 1rem;
+    border-radius: 20px;
+    cursor: pointer;
+}
+
+/* Layout Flexbox Principal */
+/* --- MAIN LAYOUT (2 Columns) --- */
+.main-layout {
+    display: flex;
+    gap: 2rem;
+    align-items: start;
+    /* Important pour que le sticky fonctionne */
+}
+
+/* Sidebar Gauche : Résultats */
+.result-panel {
+    flex: 0 0 340px;
+    /* Largeur fixe sidebar */
+    width: 340px;
+    position: sticky;
+    /* Suit le scroll */
+    top: 20px;
+    z-index: 10;
+}
+
+/* Colonne Droite : Contenu (Inputs + Summary) */
+.content-area {
+    flex: 1;
+    /* Prend tout l'espace restant */
+    min-width: 0;
+    /* Evite les débordements flex */
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+    /* Espace vertical entre Input et Summary */
+}
+
+.input-panel {
+    width: 100%;
+}
+
+.summary-section {
+    width: 100%;
+    padding: 2rem;
+    background: rgba(255, 255, 255, 0.02);
+    border: 1px solid var(--border-color);
+    border-radius: 20px;
+    box-shadow: 0 0 40px rgba(0, 0, 0, 0.2) inset;
+    text-align: center;
+}
+
+/* Common Card Style */
+.card {
+    background: var(--card-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 16px;
+    padding: 1.5rem;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+}
+
+/* RESPONSIVE (< 900px) */
+@media (max-width: 900px) {
+    .main-layout {
+        flex-direction: column;
+        /* Tout s'empile verticalement */
+    }
+
+    .result-panel {
+        width: 100%;
+        flex: none;
+        position: static;
+        /* Plus de sticky sur mobile */
+        order: -1;
+        /* Score en haut */
+    }
+
+    .content-area {
+        width: 100%;
+    }
+}
+
+
+
+/* Stepper Navigation */
+.stepper-nav {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 1.5rem;
+    justify-content: space-between;
+}
+
+.step-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    flex: 1;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+
+.step-bubble {
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+    border: 2px solid var(--border-color);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.95rem;
+    font-weight: 900;
+    transition: all 0.3s;
+    color: var(--text-light);
+    background: rgba(255, 255, 255, 0.02);
+}
+
+.step-item.active .step-bubble {
+    background: var(--accent-color);
+    color: white;
+    border-color: var(--accent-color);
+    box-shadow: 0 0 15px rgba(88, 166, 255, 0.4);
+    transform: scale(1.1);
+}
+
+.step-item:hover .step-bubble {
+    border-color: var(--accent-color);
+}
+
+.step-label {
+    font-size: 0.7rem;
+    font-weight: 700;
+    color: var(--text-light);
+    text-align: center;
+    transition: color 0.3s;
+}
+
+.step-item.active .step-label {
+    color: var(--accent-color);
+}
+
+.step-item:hover .step-label {
+    color: white;
+}
+
+/* Selectors */
+.segmented-selector {
+    display: flex;
+    flex-wrap: wrap;
+    position: relative;
+    background: rgba(255, 255, 255, 0.03);
+    border-radius: 12px;
+    border: 1px solid var(--border-color);
+    padding: 4px;
+    z-index: 1;
+    user-select: none;
+    gap: 4px;
+}
+
+.seg-item {
+    flex: 1;
+    min-width: 80px;
+    text-align: center;
+    padding: 10px 4px;
+    font-size: 0.75rem;
+    font-weight: 700;
+    cursor: pointer;
+    z-index: 2;
+    transition: all 0.3s;
+    color: var(--text-light);
+    border-radius: 8px;
+}
+
+.seg-item.active {
+    color: white;
+    background: var(--accent-color);
+    box-shadow: 0 4px 10px rgba(88, 166, 255, 0.3);
+}
+
+.seg-indicator {
+    display: none;
+    /* Simplification debt: removal of complex sliding indicator in favor of simple active state */
+}
+
+/* Metrics groups */
+.metric-group {
+    margin-bottom: 2rem;
+}
+
+.metric-label {
+    font-size: 0.7rem;
+    font-weight: 900;
+    color: var(--text-light);
+    margin-bottom: 10px;
+    display: block;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+/* Section Résumé (Mise en avant Dashboard) */
+.summary-section {
+    margin-top: 4rem;
+    padding: 2.5rem;
+    background: rgba(255, 255, 255, 0.02);
+    /* Fond subtil */
+    border: 1px solid var(--border-color);
+    border-radius: 20px;
+    position: relative;
+    box-shadow: 0 0 40px rgba(0, 0, 0, 0.2) inset;
+    /* Ombre interne pour l'effet "creusé" ou focus */
+    text-align: center;
+    /* Centre le titre et le contenu */
+}
+
+/* Titre du résumé */
+.summary-section .section-title {
+    font-size: 1.2rem;
+    opacity: 1;
+    color: var(--accent-color);
+    margin-bottom: 2rem;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    display: inline-block;
+}
+
+/* Grille Flexbox centrée */
+.summary-grid {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 20px;
+    margin-top: 1rem;
+}
+
+.summary-card {
+    background: var(--card-bg);
+    border: 1px solid var(--border-color);
+    padding: 16px;
+    border-radius: 16px;
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+
+    /* Flex sizing */
+    flex: 1 1 240px;
+    /* Grandit, base 240px */
+    max-width: 320px;
+    /* Pas trop large sur grand écran */
+    text-align: left;
+    /* Contenu interne aligné à gauche pour la lisibilité */
+}
+
+.summary-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+    border-color: var(--accent-color);
+}
+
+.summary-card.active-step-card {
+    background: rgba(88, 166, 255, 0.08);
+    border-color: var(--accent-color);
+}
+
+.summary-metric {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.7rem;
+    margin-top: 5px;
+    opacity: 0.8;
+}
+
+.summary-val {
+    font-weight: 900;
+}
+
+/* Side Panel / Score Panel (cleaned up) */
+.score-panel {
+    /* Le style est désormas géré par .result-panel et .card */
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+    align-items: center;
+    width: 100%;
+}
+
+.section-title {
+    display: block;
+    width: 100%;
+    text-align: center;
+    font-size: 0.65rem;
+    font-weight: 900;
+    color: var(--text-light);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 1rem;
+    opacity: 0.7;
+}
+
+/* Matrice */
+.matrix-section,
+.calculation-section {
+    width: 100%;
+    padding-bottom: 2rem;
+    border-bottom: 1px solid var(--border-color);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.matrix-grid {
+    display: grid;
+    grid-template-columns: 20px repeat(5, 1fr);
+    gap: 2px;
+    text-align: center;
+    padding: 5px;
+    background: rgba(0, 0, 0, 0.2);
+    border-radius: 10px;
+    max-width: 270px;
+    width: 100%;
+    margin-top: 0.5rem;
+}
+
+.matrix-cell {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 800;
+    font-size: 0.65rem;
+    padding: 6px 2px;
+    border-radius: 4px;
+    transition: all 0.3s ease;
+    cursor: default;
+    opacity: 0.5;
+    position: relative;
+    min-height: 28px;
+}
+
+.matrix-cell.active-cell {
+    transform: scale(1.15);
+    opacity: 1;
+    box-shadow: 0 0 20px rgba(255, 255, 255, 0.4);
+    z-index: 10;
+    border: 2px solid white;
+}
+
+.matrix-label-cell {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.65rem;
+    font-weight: 900;
+    color: var(--text-light);
+    opacity: 0.8;
+}
+
+.v1-cell {
+    background: var(--v1);
+    color: white;
+}
+
+.v2-cell {
+    background: var(--v2);
+    color: #1b3a57;
+}
+
+.v3-cell {
+    background: var(--v3);
+    color: #1b3a57;
+}
+
+.v4-cell {
+    background: var(--v4);
+    color: white;
+}
+
+.v5-cell {
+    background: var(--v5);
+    color: white;
+}
+
+/* Calcul Flow */
+.calc-flow {
+    display: grid;
+    grid-template-columns: minmax(50px, 1fr) 20px minmax(70px, 1.2fr) 20px minmax(50px, 1fr);
+    gap: 0.4rem;
+    align-items: center;
+    padding: 0.8rem;
+    background: rgba(255, 255, 255, 0.03);
+    border-radius: 10px;
+    width: 100%;
+    max-width: 280px;
+    margin-top: 0.5rem;
+}
+
+.calc-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
+    min-width: 0;
+}
+
+.calc-label-small {
+    font-size: 0.6rem;
+    font-weight: 700;
+    color: var(--text-light);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    white-space: nowrap;
+}
+
+.calc-badge {
+    font-weight: 900;
+    font-size: 0.85rem;
+    padding: 0.35rem 0.5rem;
+    border-radius: 6px;
+    min-width: 60px;
+    text-align: center;
+    transition: all 0.3s;
+}
+
+.calc-badge.socle {
+    background: var(--accent-color);
+    color: white;
+}
+
+.calc-arrow-big {
+    font-size: 1.5rem;
+    color: var(--text-light);
+    opacity: 0.4;
+    font-weight: 300;
+}
+
+.final-score-section {
+    text-align: center;
+    padding: 2rem 1rem;
+    background: linear-gradient(135deg, rgba(88, 166, 255, 0.05), rgba(88, 166, 255, 0.02));
+    border-radius: 16px;
+    border: 1px solid rgba(88, 166, 255, 0.2);
+}
+
+.global-score-big {
+    font-size: 5.5rem;
+    font-weight: 900;
+    font-family: 'Outfit', sans-serif;
+    line-height: 1;
+    margin-top: 1rem;
+}
+
+.export-buttons {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.75rem;
+}
+
+.btn-mode {
+    padding: 8px 18px;
+    border: 1px solid var(--border-color);
+    background: rgba(255, 255, 255, 0.05);
+    color: var(--text-light);
+    border-radius: 10px;
+    cursor: pointer;
+    font-weight: 700;
+    font-size: 0.7rem;
+    text-transform: uppercase;
+}
+
+/* Animations */
+@keyframes pulseCell {
+    0% {
+        transform: scale(1.15);
+    }
+
+    50% {
+        transform: scale(1.25);
+    }
+
+    100% {
+        transform: scale(1.15);
+    }
+}
+
+/* Responsive */
+@media (max-width: 1024px) {
+    .container {
+        max-width: 95%;
+        padding: 10px;
+    }
+
+    .dashboard-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .side-panel {
+        order: -1;
+    }
+
+    /* Score on top */
+    .score-panel {
+        margin-bottom: 2rem;
+    }
+
+    .stepper-nav {
+        overflow-x: auto;
+        padding-bottom: 10px;
+        justify-content: flex-start;
+        gap: 20px;
+    }
+
+    .step-item {
+        flex: none;
+        min-width: 70px;
+    }
+
+    /* Make selectors stack on strictly small screens only if needed, but flex-wrap handles most */
+}
+
+@media (max-width: 480px) {
+    .card {
+        padding: 1rem;
+    }
+
+    .seg-item {
+        font-size: 0.65rem;
+        padding: 10px 4px;
+    }
+}
