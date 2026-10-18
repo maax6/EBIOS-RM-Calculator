@@ -1,116 +1,15 @@
-<!DOCTYPE html>
-<html lang="fr" data-theme="dark">
-
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<!doctype html>
+<html lang="fr" data-theme="light">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="Outil d'aide à l'analyse de risques EBIOS Risk Manager : 5 ateliers, vraisemblance par graphe d'attaque, cartographie des risques, rapport imprimable." />
     <title>EBIOS RM Calculator</title>
-    <link
-        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&family=Outfit:wght@300;600;900&display=swap"
-        rel="stylesheet">
-    <link rel="stylesheet" href="style.css">
-</head>
-
-<body>
-
-    <div class="container">
-        <header>
-            <h1>EBIOS RM Tool</h1>
-            <button class="theme-toggle">🌓 Thème</button>
-        </header>
-
-        <div class="main-layout">
-
-            <!-- COLONNE GAUCHE : Sidebar Résultats -->
-            <div class="result-panel card">
-                <!-- 1. Matrix View -->
-                <div class="matrix-section">
-                    <span class="section-title">MATRICE DE RISQUE</span>
-                    <div id="ebios-matrix" class="matrix-grid"></div>
-                </div>
-
-                <!-- 2. Calculation Flow -->
-                <div class="calculation-section">
-                    <span class="section-title">Analyse de l'étape</span>
-                    <div class="calc-flow">
-                        <div class="calc-item">
-                            <span class="calc-label-small">Matrice</span>
-                            <div id="calc-raw-score" class="calc-badge">V?</div>
-                        </div>
-                        <div class="calc-arrow-big">→</div>
-                        <div class="calc-item">
-                            <span class="calc-label-small">Socle</span>
-                            <div id="calc-socle-level" class="calc-badge socle">?</div>
-                        </div>
-                        <div class="calc-arrow-big">→</div>
-                        <div class="calc-item">
-                            <span class="calc-label-small">Final</span>
-                            <div id="calc-final-score" class="calc-badge">V?</div>
-                        </div>
-                    </div>
-                    <div id="calc-justification"
-                        style="margin-top: 1rem; font-size: 0.75rem; color: var(--text-light); font-style: italic; line-height: 1.4; background:rgba(255,255,255,0.03); padding:10px; border-radius:8px;">
-                    </div>
-                </div>
-
-                <!-- 3. Global Score -->
-                <div class="final-score-section">
-                    <span class="section-title">VRAISEMBLANCE GLOBALE</span>
-                    <div id="global-score" class="global-score-big">V?</div>
-                </div>
-
-                <!-- Export -->
-                <div class="export-buttons">
-                    <button class="btn-mode" onclick="app.exportJSON()">JSON</button>
-                    <button class="btn-mode" onclick="app.exportPDF()">PDF</button>
-                </div>
-            </div>
-
-            <!-- COLONNE DROITE : Saisie ET Résumé (Empilés) -->
-            <div class="content-area">
-
-                <!-- 1. Zone de Saisie -->
-                <div class="input-panel card">
-                    <div id="stepper-ui" class="stepper-nav"></div>
-
-                    <div
-                        style="margin-bottom: 2rem; background: rgba(88,166,255,0.08); padding: 1rem; border-radius: 12px; border-left: 4px solid var(--accent-color);">
-                        <span id="step-name"
-                            style="font-size: 1.1rem; font-weight: 900; color: var(--accent-color); letter-spacing: 0.5px;">Chargement...</span>
-                    </div>
-
-                    <div class="metric-group">
-                        <label class="metric-label">PROBABILITÉ DE SUCCÈS</label>
-                        <div id="sel-prob" class="segmented-selector"></div>
-                    </div>
-
-                    <div class="metric-group">
-                        <label class="metric-label">DIFFICULTÉ TECHNIQUE DE L'ATTAQUANT</label>
-                        <div id="sel-diff" class="segmented-selector"></div>
-                        <p id="diff-desc"
-                            style="font-size:0.75rem; color:var(--text-light); margin-top:12px; font-style: italic;">
-                        </p>
-                    </div>
-
-                    <div class="metric-group">
-                        <label class="metric-label">SOCLE DE SÉCURITÉ EN PLACE</label>
-                        <div id="sel-socle" class="segmented-selector"></div>
-                    </div>
-                </div>
-
-                <!-- 2. Zone de Résumé (Collée en dessous) -->
-                <div class="summary-section">
-                    <h3 class="section-title">RÉSUMÉ DU SCÉNARIO</h3>
-                    <div id="summary-visualization" class="summary-grid"></div>
-                </div>
-
-            </div>
-        </div>
-
-    </div>
-
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-    <script src="script.js"></script>
-</body>
-
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='7' fill='%231f4fd1'/><text x='16' y='21' font-size='13' font-family='sans-serif' font-weight='700' fill='white' text-anchor='middle'>RM</text></svg>" />
+  </head>
+  <body>
+    <noscript>Cet outil nécessite JavaScript.</noscript>
+    <div id="app"></div>
+    <script type="module" src="/src/main.js"></script>
+  </body>
 </html>
