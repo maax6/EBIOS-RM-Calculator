@@ -4,7 +4,6 @@
   "private": true,
   "description": "Outil d'aide à l'analyse de risques selon la méthode EBIOS Risk Manager (ANSSI) : 5 ateliers, vraisemblance par graphe d'attaque, cartographie des risques.",
   "type": "module",
-  "license": "MIT",
   "scripts": {
     "dev": "vite --host 0.0.0.0 --port 5173 --strictPort",
     "build": "vite build",

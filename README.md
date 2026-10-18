@@ -1,86 +1,114 @@
-# Calculateur EBIOS RM
+# EBIOS RM Calculator
 
-Outil simple pour calculer la vraisemblance selon l'Atelier 4 de la méthode EBIOS RM.
+Outil web d'aide à l'analyse de risques cyber selon la méthode **EBIOS Risk Manager** de l'ANSSI.
+Il couvre les **5 ateliers** de la méthode et calcule la vraisemblance des scénarios opérationnels
+à partir d'un **graphe d'attaque**, en appliquant les règles des fiches méthodes officielles.
 
-## 🔗 Liens utiles
-- [Méthode EBIOS RM (ANSSI)](https://cyber.gouv.fr/securisation/analyse-des-risques/methode-ebios-rm/)
-- [FAQ Club EBIOS](https://club-ebios.org/site/faq/)
+100 % statique : aucune donnée ne quitte le navigateur (sauvegarde locale + export de fichiers).
 
-## Utilisation
-1. **Choisir le mode** (Express, Standard ou Advanced).
-2. **Évaluer chaque étape** du scénario via les sélecteurs (Probabilité, Difficulté, Socle).
-3. **Consulter le score global** et la matrice générés automatiquement.
-4. **Exporter** le résultat en JSON ou PDF si besoin.
+| Atelier 4 : graphe d'attaque et vraisemblance | Atelier 3 : menace de l'écosystème | Atelier 5 : cartographie des risques |
+|---|---|---|
+| ![Atelier 4](docs/atelier4.png) | ![Atelier 3](docs/atelier3.png) | ![Atelier 5](docs/atelier5.png) |
 
----
-# EBIOS-RM-Calculator
+> Démo en ligne : _à venir (GitHub Pages)_
 
-⚠️ **Disclaimer important**
+## Fonctionnalités
 
-Cet outil **n’implémente pas la méthode EBIOS Risk Manager (EBIOS RM) dans son ensemble** et **ne doit pas être utilisé comme tel**.
+| Atelier | Ce que fait l'outil |
+|---|---|
+| **1. Cadrage et socle de sécurité** | Valeurs métier, biens supports, événements redoutés cotés en gravité (G1 Mineure → G4 Critique), référentiels du socle avec état d'application et écarts. |
+| **2. Sources de risque** | Couples source de risque / objectif visé, pertinence indicative (motivation × ressources), sélection des couples retenus. |
+| **3. Scénarios stratégiques** | Niveau de menace des parties prenantes `(Dépendance × Pénétration) / (Maturité cyber × Confiance)`, zones danger / contrôle / veille (seuils réglables ou répartition ANSSI 10/40/40/10), radar SVG, scénarios stratégiques dont la gravité est celle du pire événement redouté visé. |
+| **4. Scénarios opérationnels** | Graphe d'attaque éditable (actions élémentaires, phases Connaître / Rentrer / Trouver / Exploiter, antécédents, actions finales), méthodes **expresse**, **standard** et **avancée**, visualisation du mode opératoire retenu, grille croisée, détail de tous les modes opératoires. |
+| **5. Traitement du risque** | Un risque par scénario opérationnel, cartographies initiale et résiduelle, plan de traitement (option, mesures, responsable, échéance, niveau résiduel). |
+| **Rapport** | Synthèse imprimable / export PDF via le navigateur, exports **JSON** (étude complète) et **CSV** (registre des risques, compatible Excel FR). |
 
-**EBIOS-RM-Calculator est un outil d’aide ponctuelle**, conçu uniquement pour **produire une estimation de vraisemblance dans un scénario opérationnel spécifique**, relevant de **l’atelier 4 – Scénarios opérationnels** de la méthode EBIOS RM.
+Autres points : sauvegarde automatique (localStorage), import JSON validé et normalisé (valeurs hors échelle corrigées, références cassées retirées, migration de l'ancien format v2), contrôles de cohérence par atelier, thème clair/sombre, aucune dépendance CDN.
 
----
+## Règles de calcul (atelier 4)
 
-## Objectif de l’outil
+Échelles à 5 niveaux (0 à 4), conformément à la fiche méthode 8 :
+probabilité de succès `Pr0` (< 3 %) → `Pr4` (> 90 %), difficulté technique `D0` négligeable → `D4` très élevée,
+vraisemblance `V0` invraisemblable → `V4` quasi certain.
 
-L’objectif de cet outil est de :
-- faciliter une **estimation rapide et structurée de la vraisemblance** d’un scénario donné,
-- servir de **support de travail** lors de phases de **brainstorming**, d’échange ou de prise de notes,
-- aider à **gagner du temps sur une étape très ciblée** de l’atelier 4.
+**Indices cumulés intermédiaires**, calculés de proche en proche sur le graphe :
 
-Il s’agit d’un **outil d’assistance**, pas d’un moteur d’analyse de risques complet.
+```
+Pr(AEn)   = Min { Pr(AEn),   Max( Pr cumulés des antécédents ) }
+Diff(AEn) = Max { Diff(AEn), Min( Diff cumulées des antécédents ) }
+```
 
----
+Dans une séquence, le maillon le moins probable et le plus difficile s'imposent. Entre chemins
+alternatifs, l'attaquant retient le plus probable et le plus facile.
 
-## Limites et périmètre
+- **Standard** : vraisemblance = indice global de probabilité de succès (meilleur mode opératoire).
+- **Avancée** : chaque mode opératoire (chemin d'un point d'entrée à une action finale) est évalué
+  avec la grille croisée ci-dessous ; on retient le **mode le plus vraisemblable**. L'outil évite
+  volontairement de croiser la probabilité d'un mode avec la difficulté d'un autre, ce qui
+  surestimerait la vraisemblance (mise en garde de la fiche méthode).
+- **Expresse** : cotation directe, ou croisement probabilité × difficulté globales.
+- Options proposées par l'ANSSI : correction des séquences longues (≥ 10 actions : −1 Pr, +1 D) et
+  majoration d'un niveau si la source de risque est particulièrement déterminée.
 
-Cet outil :
+| Pr \ D | D0 | D1 | D2 | D3 | D4 |
+|---|---|---|---|---|---|
+| **Pr4** quasi certaine | 4 | 4 | 3 | 2 | 1 |
+| **Pr3** très élevée | 4 | 3 | 3 | 2 | 1 |
+| **Pr2** significative | 3 | 3 | 2 | 2 | 1 |
+| **Pr1** faible | 2 | 2 | 2 | 1 | 0 |
+| **Pr0** très faible | 1 | 1 | 1 | 0 | 0 |
 
-- ❌ **Ne couvre pas les cinq ateliers EBIOS RM**
-- ❌ **Ne permet pas d’appliquer la méthode EBIOS RM dans son intégralité**
-- ❌ **N’est pas un outil officiel ni labellisé par l’ANSSI**
-- ❌ **Ne remplace pas une analyse EBIOS RM menée de façon structurée, collaborative et documentée**
+L'étude d'exemple reprend le graphe d'attaque de la fiche méthode 8 (cas « biotech vaccins ») et
+retrouve l'indice global de 3 (V3) publié par l'ANSSI. Ce cas sert aussi de test unitaire.
 
-En particulier, l’outil **n’intègre pas** :
-- le cadrage du contexte et des enjeux,
-- l’identification et la caractérisation des sources de risques,
-- la construction des scénarios stratégiques,
-- l’analyse globale des impacts,
-- le traitement du risque et les décisions de sécurité.
+**Socle de sécurité** : en EBIOS RM, le socle (atelier 1) n'est pas un coefficient appliqué à la
+vraisemblance. Les mesures existantes se traduisent dans la cotation de la probabilité et de la
+difficulté de chaque action. Un champ « justification / mesures existantes » est prévu pour chaque action.
 
-Les résultats fournis sont des **estimations simplifiées**, dépendantes des hypothèses saisies, et **ne doivent pas être interprétés comme une mesure objective ou exhaustive du risque**.
+**Acceptation du risque** (atelier 5) : par défaut, `score = gravité + vraisemblance`.
+Le risque est tolérable sous contrôle à partir de 5 et inacceptable à partir de 7. C'est une
+convention de l'outil, réglable dans l'interface : l'ANSSI laisse ce choix à la gouvernance.
 
----
+## Lancer le projet
 
-## Usage recommandé
+Prérequis : Node.js ≥ 18.
 
-Cet outil peut être utilisé :
-- comme **support ponctuel** lors d’un atelier 4 déjà cadré,
-- pour **tester des hypothèses de vraisemblance** sur un scénario donné,
-- comme **outil pédagogique** ou de démonstration,
-- comme **aide à la structuration de la réflexion**, en complément d’un travail EBIOS RM complet.
+```bash
+npm install
+npm run dev       # http://localhost:5173
+npm test          # tests unitaires (Vitest)
+npm run build     # build statique dans dist/ (chemins relatifs, déployable partout)
+npm run preview   # sert le build sur le port 5173
+```
 
-Il **ne doit pas être utilisé seul** pour conclure sur le niveau de risque d’un système d’information.
+Le workflow `.github/workflows/ci.yml` lance les tests et le build, puis publie `dist/` sur
+GitHub Pages à chaque push sur `main`. Il faut d'abord activer Pages (source : GitHub Actions).
 
----
+## Structure
 
-## Positionnement
+```
+src/
+  core/          logique métier pure, testée (aucun accès au DOM)
+    scales.js    échelles et grilles ANSSI
+    ebios.js     moteur de calcul (ateliers 2 à 5)
+    model.js     modèle d'étude, validation/normalisation, migration, dérivation des risques
+    export.js    exports JSON / CSV
+    exemple.js   étude d'exemple
+  ui/            rendu (helper DOM sans innerHTML, composants, une vue par atelier)
+  store.js       état + persistance locale
+tests/           tests unitaires du moteur et du modèle
+```
 
-EBIOS-RM-Calculator est volontairement :
-- simple,
-- ciblé,
-- non prescriptif.
+## Références
 
-Il s’inscrit comme un **outil personnel / expérimental**, destiné à accompagner une démarche existante, et non à la remplacer.
+- ANSSI, [La méthode EBIOS Risk Manager](https://cyber.gouv.fr/la-methode-ebios-risk-manager) et [le guide](https://messervices.cyber.gouv.fr/guides/ebios-risk-manager-la-methode)
+- ANSSI, [Fiche méthode 8 – Évaluer la vraisemblance des scénarios opérationnels](https://messervices.cyber.gouv.fr/documents-guides/Fiche_methode-Evaluer_la_vraisemblance_des_scenarios_operationnels-atelier_4.pdf)
+- ANSSI, [Fiche méthode – Dangerosité des parties prenantes de l'écosystème](https://messervices.cyber.gouv.fr/documents-guides/Fiche_methode-Construire_lestimation_de_la_dangerosite_des_parties_prenantes_de_l_ecosysteme-atelier_3.pdf)
+- [Club EBIOS – FAQ](https://club-ebios.org/site/faq/)
 
----
+## Avertissement
 
-## Licence et responsabilité
-
-L’utilisation de cet outil se fait **sous la responsabilité de l’utilisateur**.  
-Aucune garantie n’est fournie quant à l’exhaustivité, l’exactitude ou l’adéquation des résultats à un contexte réel de gestion des risques.
-
-
-
+Outil personnel et pédagogique, **non officiel et non labellisé par l'ANSSI**. Il structure et
+accélère une analyse EBIOS RM, mais ne remplace pas un travail collaboratif mené avec les métiers.
+Les cotations restent le jugement du groupe de travail. Aucune garantie n'est donnée sur
+l'adéquation des résultats à un contexte réel.
