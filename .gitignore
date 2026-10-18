@@ -1,7 +1,7 @@
+node_modules/
+dist/
 planning_artifacts/
 _bmad/
-js/
-styles/
 *.log
 .DS_Store
 .env
