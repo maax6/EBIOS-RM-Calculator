@@ -86,6 +86,12 @@ function render() {
     h('footer', { class: 'footer' },
       h('span', { id: 'save-status' }, 'Enregistrement automatique dans ce navigateur'),
       h('span', {}, 'Outil non officiel – méthode ', h('a', { href: 'https://cyber.gouv.fr/la-methode-ebios-risk-manager', target: '_blank', rel: 'noopener' }, 'EBIOS Risk Manager (ANSSI)'))));
+
+  // Sur petit écran, la barre d'onglets défile : on y ramène l'onglet actif (sans faire défiler la page).
+  const tabs = app.querySelector('.tabs');
+  const on = tabs.querySelector('.tab-on');
+  const t = tabs.getBoundingClientRect(), o = on.getBoundingClientRect();
+  if (o.left < t.left || o.right > t.right) tabs.scrollLeft += o.left - t.left - 16;
 }
 
 document.addEventListener('ebios:saved', () => {

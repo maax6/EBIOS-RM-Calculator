@@ -10,7 +10,7 @@ Il couvre les **5 ateliers** de la méthode et calcule la vraisemblance des scé
 |---|---|---|
 | ![Atelier 4](docs/atelier4.png) | ![Atelier 3](docs/atelier3.png) | ![Atelier 5](docs/atelier5.png) |
 
-> Démo en ligne : _à venir (GitHub Pages)_
+> Démo en ligne : https://maax6.github.io/EBIOS-RM-Calculator/
 
 ## Fonctionnalités
 

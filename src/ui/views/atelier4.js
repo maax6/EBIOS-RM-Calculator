@@ -132,14 +132,14 @@ export function viewAtelier4(etude) {
   const isGraph = so.methode !== 'expresse';
 
   const actionCols = [
-    { key: 'label', label: 'Action élémentaire', type: 'textarea', placeholder: 'ex. Hameçonnage ciblé du service RH', minWidth: '220px' },
+    { key: 'label', label: 'Action élémentaire', type: 'textarea', placeholder: 'ex. Hameçonnage ciblé du service RH', minWidth: '170px' },
     { key: 'phase', label: 'Étape', type: 'select', options: PHASES, width: '120px' },
     { key: 'pr', label: 'Probabilité', type: 'level', options: levelOptions(PROBABILITE), width: '170px' },
     so.methode === 'avancee' ? { key: 'diff', label: 'Difficulté', type: 'level', options: levelOptions(DIFFICULTE), width: '160px' } : null,
-    { key: 'predecesseurs', label: 'Antécédents', type: 'chips', options: (a) => so.actions.filter((x) => x.id !== a.id).map((x) => ({ value: x.id, label: x.id, title: x.label })), empty: 'Point d’entrée', minWidth: '210px' },
+    { key: 'predecesseurs', label: 'Antécédents', type: 'chips', options: (a) => so.actions.filter((x) => x.id !== a.id).map((x) => ({ value: x.id, label: x.id, title: x.label })), empty: 'Point d’entrée', minWidth: '150px' },
     { key: 'finale', label: 'Objectif', title: 'Action finale : atteinte de l’objectif visé', type: 'checkbox', width: '64px' },
-    { key: '_c', label: 'Cumul', type: 'computed', width: '90px', render: (a) => { const c = ev.graphe?.cumul?.[a.id]; return c ? h('span', { class: 'small mono' }, `Pr${c.pr}${so.methode === 'avancee' ? ` D${c.diff}` : ''}`) : '—'; } },
-    { key: 'justification', label: 'Justification / mesures existantes', type: 'textarea', minWidth: '200px' },
+    { key: '_c', label: 'Cumul', type: 'computed', width: '70px', render: (a) => { const c = ev.graphe?.cumul?.[a.id]; return c ? h('span', { class: 'small mono' }, `Pr${c.pr}${so.methode === 'avancee' ? ` D${c.diff}` : ''}`) : '—'; } },
+    { key: 'justification', label: 'Justification', title: 'Justification / mesures existantes', type: 'textarea', minWidth: '160px' },
   ].filter(Boolean);
 
   return [

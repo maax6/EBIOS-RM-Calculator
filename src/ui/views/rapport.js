@@ -7,7 +7,7 @@ import { carto } from './atelier5.js';
 
 const ZONES = { danger: 'Danger', controle: 'Contrôle', veille: 'Veille', hors: 'Hors périmètre' };
 const METHODES = { expresse: 'Expresse', standard: 'Standard', avancee: 'Avancée' };
-const table = (head, rows) => h('table', { class: 'table table-compact' }, h('thead', {}, h('tr', {}, head.map((x) => h('th', {}, x)))), h('tbody', {}, rows.length ? rows.map((r) => h('tr', {}, r.map((c) => h('td', {}, c)))) : h('tr', {}, h('td', { colspan: head.length, class: 'empty' }, '—'))));
+const table = (head, rows) => h('div', { class: 'report-scroll' }, h('table', { class: 'table table-compact' }, h('thead', {}, h('tr', {}, head.map((x) => h('th', {}, x)))), h('tbody', {}, rows.length ? rows.map((r) => h('tr', {}, r.map((c) => h('td', {}, c)))) : h('tr', {}, h('td', { colspan: head.length, class: 'empty' }, '—')))));
 
 export function viewRapport(etude) {
   const { meta, atelier1: a1, atelier2: a2, atelier3: a3 } = etude;
