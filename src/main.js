@@ -10,6 +10,7 @@ import { viewAtelier3 } from './ui/views/atelier3.js';
 import { viewAtelier4 } from './ui/views/atelier4.js';
 import { viewAtelier5 } from './ui/views/atelier5.js';
 import { viewRapport } from './ui/views/rapport.js';
+import { viewGuide, etapeDeVue, majEtatGuide, ETAPES } from './ui/guide.js';
 
 const VUES = [
   { id: 'cadrage', num: 1, titre: 'Cadrage & socle', view: viewAtelier1 },
@@ -19,6 +20,16 @@ const VUES = [
   { id: 'traitement', num: 5, titre: 'Traitement du risque', view: viewAtelier5 },
   { id: 'rapport', num: null, titre: 'Rapport', view: viewRapport },
 ];
+
+const PREF_GUIDE = 'ebios-rm-calculator:guide';
+
+function lirePrefGuide() {
+  try {
+    return JSON.parse(localStorage.getItem(PREF_GUIDE)) ?? {};
+  } catch {
+    return {};
+  }
+}
 
 const slug = (s) => (s || 'etude').normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-z0-9]+/gi, '-').replace(/^-|-$/g, '').toLowerCase().slice(0, 50);
 
@@ -47,7 +58,7 @@ function actions() {
     h('span', { class: 'toolbar-sep' }),
     h('button', { type: 'button', class: 'btn btn-secondary', onclick: () => download(`${slug(e.meta.titre)}.ebios.json`, toJSON(e), 'application/json') }, 'JSON'),
     h('button', { type: 'button', class: 'btn btn-secondary', onclick: () => download(`${slug(e.meta.titre)}-risques.csv`, risquesToCSV(deriverRisques(e)), 'text/csv;charset=utf-8') }, 'CSV'),
-    h('button', { type: 'button', class: 'btn btn-primary', onclick: () => { setStore({ vue: 'rapport' }); setTimeout(() => window.print(), 50); } }, 'Imprimer / PDF'),
+    h('button', { type: 'button', class: 'btn btn-primary', onclick: () => { setStore({ vue: 'rapport', etape: ETAPES.length - 1 }); setTimeout(() => window.print(), 50); } }, 'Imprimer / PDF'),
     h('button', { type: 'button', class: 'btn btn-ghost', 'aria-label': 'Changer de thème', title: 'Thème clair / sombre', onclick: () => {
       const t = document.documentElement.dataset.theme === 'dark' ? 'light' : 'dark';
       document.documentElement.dataset.theme = t;
@@ -55,8 +66,23 @@ function actions() {
     } }, '◐'));
 }
 
+function modeSwitch() {
+  const guide = store.mode === 'guide';
+  return h('div', { class: 'segmented mode-switch', role: 'group', 'aria-label': 'Mode d’affichage' },
+    h('button', { type: 'button', class: ['seg', guide && 'seg-on'], 'aria-pressed': String(guide), title: 'Une étape à la fois, avec explications',
+      onclick: () => { if (!guide) setStore({ mode: 'guide', etape: etapeDeVue(store.vue) }); } }, 'Guidé'),
+    h('button', { type: 'button', class: ['seg', !guide && 'seg-on'], 'aria-pressed': String(!guide), title: 'Tous les ateliers, sans explications',
+      onclick: () => { if (guide) setStore({ mode: 'expert', vue: ETAPES[store.etape]?.vue ?? store.vue }); } }, 'Expert'));
+}
+
 function render() {
   const e = store.etude;
+  const guide = store.mode === 'guide';
+  try {
+    localStorage.setItem(PREF_GUIDE, JSON.stringify({ mode: store.mode, etape: store.etape }));
+  } catch {
+    // Préférence d'affichage seulement : on continue sans.
+  }
   const warnings = controlesCoherence(e);
   const vue = VUES.find((v) => v.id === store.vue) ?? VUES[0];
   const app = document.getElementById('app');
@@ -66,8 +92,9 @@ function render() {
       h('div', { class: 'brand' },
         h('div', { class: 'logo', 'aria-hidden': 'true' }, 'RM'),
         h('div', {}, h('div', { class: 'brand-title' }, 'EBIOS RM Calculator'), h('div', { class: 'brand-sub', id: 'brand-sub' }, e.meta.titre || 'Étude sans titre'))),
+      modeSwitch(),
       actions()),
-    h('nav', { class: 'tabs', 'aria-label': 'Ateliers EBIOS RM' },
+    guide ? null : h('nav', { class: 'tabs', 'aria-label': 'Ateliers EBIOS RM' },
       VUES.map((v) => {
         const n = warnings.filter((w) => w.atelier === v.num).length;
         return h('button', { type: 'button', class: ['tab', v.id === vue.id && 'tab-on'], 'aria-current': v.id === vue.id ? 'page' : null, onclick: () => setStore({ vue: v.id }) },
@@ -78,7 +105,7 @@ function render() {
     store.notices.length ? h('div', { class: 'notice', role: 'status' },
       h('ul', {}, store.notices.map((n) => h('li', {}, n))),
       h('button', { type: 'button', class: 'btn btn-ghost', 'aria-label': 'Fermer', onclick: () => setStore({ notices: [] }) }, '✕')) : null,
-    h('main', { class: 'content', id: 'main' },
+    guide ? h('main', { class: 'content', id: 'main' }, viewGuide(e, VUES)) : h('main', { class: 'content', id: 'main' },
       vue.view(e),
       vue.num && warnings.some((w) => w.atelier === vue.num)
         ? h('section', { class: 'card card-warn' }, h('h3', {}, 'Points de vigilance'), h('ul', {}, warnings.filter((w) => w.atelier === vue.num).map((w) => h('li', {}, w.msg))))
@@ -89,6 +116,7 @@ function render() {
 
   // Sur petit écran, la barre d'onglets défile : on y ramène l'onglet actif (sans faire défiler la page).
   const tabs = app.querySelector('.tabs');
+  if (!tabs) return;
   const on = tabs.querySelector('.tab-on');
   const t = tabs.getBoundingClientRect(), o = on.getBoundingClientRect();
   if (o.left < t.left || o.right > t.right) tabs.scrollLeft += o.left - t.left - 16;
@@ -97,10 +125,18 @@ function render() {
 document.addEventListener('ebios:saved', () => {
   const el = document.getElementById('save-status');
   if (el) el.textContent = `Enregistré localement à ${store.dernierEnregistrement.toLocaleTimeString('fr-FR')}`;
+  // La saisie de texte ne redessine pas la page : on rafraîchit seulement l'état de l'étape guidée.
+  if (store.mode === 'guide') majEtatGuide(store.etude);
 });
 
 const theme = localStorage.getItem('ebios-rm-calculator:theme');
 if (theme) document.documentElement.dataset.theme = theme;
+
+const pref = lirePrefGuide();
+// Première visite sur une étude vide : on commence en mode guidé.
+store.mode = pref.mode ?? (store.etude.atelier1.valeursMetier.length ? 'expert' : 'guide');
+store.etape = Number.isInteger(pref.etape) ? pref.etape : 0;
+if (store.mode === 'guide') store.vue = ETAPES[Math.min(store.etape, ETAPES.length - 1)].vue;
 
 subscribe(render);
 store.soActif = store.etude.atelier4.scenariosOperationnels[0]?.id ?? null;

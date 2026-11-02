@@ -23,6 +23,8 @@ Il couvre les **5 ateliers** de la méthode et calcule la vraisemblance des scé
 | **5. Traitement du risque** | Un risque par scénario opérationnel, cartographies initiale et résiduelle, plan de traitement (option, mesures, responsable, échéance, niveau résiduel). |
 | **Rapport** | Synthèse imprimable / export PDF via le navigateur, exports **JSON** (étude complète) et **CSV** (registre des risques, compatible Excel FR). |
 
+**Mode guidé** : pour une première étude, l'outil découpe la méthode en 12 étapes et n'affiche qu'une carte à la fois, avec ce qu'il faut faire, pourquoi, un exemple tiré du cas ANSSI et l'état d'avancement de chaque étape. Le mode expert garde la vue complète par atelier ; on passe de l'un à l'autre en haut de page. Une nouvelle étude vide s'ouvre en mode guidé.
+
 Autres points : sauvegarde automatique (localStorage), import JSON validé et normalisé (valeurs hors échelle corrigées, références cassées retirées, migration de l'ancien format v2), contrôles de cohérence par atelier, thème clair/sombre, aucune dépendance CDN.
 
 ## Règles de calcul (atelier 4)

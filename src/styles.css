@@ -217,6 +217,41 @@ details.scale dd { margin: 0; color: var(--muted); }
   .so-layout, .split { grid-template-columns: minmax(0, 1fr); }
   .so-side { position: static; }
 }
+/* Mode guidé */
+.mode-switch { margin: 0; }
+.guide { display: grid; grid-template-columns: 250px minmax(0, 1fr); gap: 1.25rem; align-items: start; }
+.guide-steps { position: sticky; top: 90px; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: .9rem .75rem; }
+.guide-progress { margin: 0 0 .4rem; font-size: .8rem; color: var(--muted); }
+.guide-bar { height: 6px; border-radius: 999px; background: var(--surface-2); border: 1px solid var(--border); overflow: hidden; margin-bottom: .75rem; }
+.guide-bar span { display: block; height: 100%; background: var(--l0); transition: width .2s ease-out; }
+.guide-steps ol { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 1px; }
+.guide-group { font-size: .75rem; font-weight: 700; color: var(--muted); margin: .6rem .5rem .2rem; }
+.guide-group:first-child { margin-top: 0; }
+.guide-step { width: 100%; display: flex; gap: .5rem; align-items: baseline; text-align: left; font: inherit; font-size: .86rem; color: var(--text); background: none; border: 0; border-radius: 8px; padding: .38rem .5rem; cursor: pointer; }
+.guide-step:hover { background: var(--surface-2); }
+.guide-step:focus-visible { outline: 2px solid var(--primary); outline-offset: 1px; }
+.guide-step-on { background: var(--primary-soft); color: var(--primary); font-weight: 600; }
+.guide-mark { width: 1rem; flex: none; text-align: center; color: var(--muted); }
+.guide-ok-true .guide-mark { color: var(--l0-fg); }
+.guide-main { display: flex; flex-direction: column; gap: 1rem; min-width: 0; }
+.guide-intro { max-width: 72ch; }
+.guide-intro h2 { font-size: 1.35rem; margin: .1rem 0 .6rem; }
+.guide-intro h2:focus { outline: none; }
+.guide-kicker { margin: 0; font-size: .82rem; color: var(--muted); }
+.guide-quoi { font-size: 1rem; margin: 0 0 .6rem; }
+.guide-pourquoi, .guide-exemple { color: var(--muted); margin: 0 0 .5rem; }
+.guide-etat { margin: .75rem 0 0; padding: .45rem .7rem; border-radius: 8px; font-weight: 600; font-size: .88rem; background: var(--surface-2); color: var(--muted); }
+.guide-etat.guide-ok-true { background: var(--l0-bg); color: var(--l0-fg); }
+.guide-etat.guide-ok-false { background: var(--warn-bg); color: var(--warn-text); }
+.guide-nav { display: flex; justify-content: space-between; gap: .75rem; flex-wrap: wrap; padding-top: .25rem; }
+@media (max-width: 900px) {
+  .guide { grid-template-columns: minmax(0, 1fr); }
+  .guide-steps { position: static; }
+  .guide-steps ol { display: none; }
+  .guide-bar { margin-bottom: 0; }
+}
+@media (prefers-reduced-motion: reduce) { .guide-bar span { transition: none; } }
+
 @media (max-width: 640px) {
   .topbar, .tabs, .content { padding-left: .75rem; padding-right: .75rem; }
   .toolbar-sep { display: none; }
@@ -230,7 +265,8 @@ details.scale dd { margin: 0; color: var(--muted); }
     --l0-fg: #2c6247; --l1-fg: #4d5e22; --l2-fg: #6b5210; --l3-fg: #874316; --l4-fg: #8d2f2b;
   }
   body { background: #fff; color: #000; font-size: 11px; }
-  .topbar, .tabs, .footer, .notice, .card-warn { display: none !important; }
+  .topbar, .tabs, .footer, .notice, .card-warn, .guide-steps, .guide-intro, .guide-nav { display: none !important; }
+  .guide { display: block; }
   .content { padding: 0; max-width: none; }
   .report { border: 0; box-shadow: none; padding: 0; }
   .report h2 { break-after: avoid; }
