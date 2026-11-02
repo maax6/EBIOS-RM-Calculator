@@ -8,7 +8,12 @@ export function viewAtelier1(etude) {
   const a1 = etude.atelier1;
   const m = etude.meta;
   const metaField = (key, lbl, type = 'text') => h('label', { class: 'field' }, h('span', {}, lbl),
-    h('input', { class: 'input', type, value: m[key], oninput: (e) => update((x) => { x.meta[key] = e.target.value; }, { render: key === 'titre' }) }));
+    h('input', { class: 'input', type, value: m[key], oninput: (e) => {
+      update((x) => { x.meta[key] = e.target.value; }, { render: false });
+      // Pas de re-rendu pendant la saisie (il ferait perdre le focus) : on met seulement à jour l'en-tête.
+      const sub = key === 'titre' && document.getElementById('brand-sub');
+      if (sub) sub.textContent = e.target.value || 'Étude sans titre';
+    } }));
   const vmOptions = a1.valeursMetier.map((v) => ({ value: v.id, label: `${v.id} ${v.nom}`.trim(), title: v.description }));
 
   return [

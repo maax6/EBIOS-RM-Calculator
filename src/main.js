@@ -65,7 +65,7 @@ function render() {
     h('header', { class: 'topbar' },
       h('div', { class: 'brand' },
         h('div', { class: 'logo', 'aria-hidden': 'true' }, 'RM'),
-        h('div', {}, h('div', { class: 'brand-title' }, 'EBIOS RM Calculator'), h('div', { class: 'brand-sub' }, e.meta.titre || 'Étude sans titre'))),
+        h('div', {}, h('div', { class: 'brand-title' }, 'EBIOS RM Calculator'), h('div', { class: 'brand-sub', id: 'brand-sub' }, e.meta.titre || 'Étude sans titre'))),
       actions()),
     h('nav', { class: 'tabs', 'aria-label': 'Ateliers EBIOS RM' },
       VUES.map((v) => {
