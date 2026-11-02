@@ -217,6 +217,13 @@ details.scale dd { margin: 0; color: var(--muted); }
   .so-layout, .split { grid-template-columns: minmax(0, 1fr); }
   .so-side { position: static; }
 }
+
+/* Le tableau (min 760px) ne tient pas à côté du radar quand la carte est étroite : on empile */
+.card:has(> .split) { container-type: inline-size; }
+@container (max-width: 1200px) {
+  .split { grid-template-columns: minmax(0, 1fr); }
+}
+
 /* Mode guidé */
 .mode-switch { margin: 0; }
 .guide { display: grid; grid-template-columns: 250px minmax(0, 1fr); gap: 1.25rem; align-items: start; }
